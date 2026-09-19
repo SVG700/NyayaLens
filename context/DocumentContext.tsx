@@ -90,7 +90,7 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // Read raw text if it's a text file or simulate text extraction from PDF/Docx
     let rawText = '';
     try {
-      if (file.type.includes('text') || file.name.endsWith('.txt')) {
+      if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
         rawText = await file.text();
       } else {
         // For PDF/Word binary files, generate synthetic parsed stream based on filename

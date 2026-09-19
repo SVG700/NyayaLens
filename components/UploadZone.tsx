@@ -35,13 +35,13 @@ export const UploadZone: React.FC<{ className?: string }> = ({ className }) => {
     }
 
     // Validate extension
-    const validExtensions = ['.pdf', '.docx', '.txt', '.doc'];
+    const validExtensions = ['.pdf', '.docx', '.txt', '.doc', '.md'];
     const hasValidExt = validExtensions.some((ext) =>
       file.name.toLowerCase().endsWith(ext)
     );
 
     if (!hasValidExt) {
-      setErrorMsg('Unsupported file type. Please upload a PDF, DOCX, or TXT file.');
+      setErrorMsg('Unsupported file type. Please upload a PDF, DOCX, TXT, or MD file.');
       return;
     }
 
@@ -98,7 +98,7 @@ export const UploadZone: React.FC<{ className?: string }> = ({ className }) => {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf,.docx,.txt,.doc"
+        accept=".pdf,.docx,.txt,.doc,.md"
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
       />
