@@ -56,43 +56,35 @@ export default function SettingsPage() {
   };
 
   const handleTestKey = async () => {
-    if (!apiKey.trim()) {
-      setTestResult({
-        success: true,
-        message: 'No external key provided. NyayaLens built-in legal heuristics engine is active and ready!'
-      });
-      return;
-    }
-
     setTestingKey(true);
     setTestResult(null);
 
     try {
-      const res = await fetch('/api/ai/ask', {
+      const res = await fetch('/api/ai/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          documentName: currentDocument.name,
-          rawText: currentDocument.rawText || '',
-          question: 'What is the termination notice period?'
+          customApiKey: apiKey.trim() || undefined,
+          customModel: modelChoice
         })
       });
 
       if (res.ok) {
+        const data = await res.json();
         setTestResult({
-          success: true,
-          message: 'GenAI provider connected and responded successfully!'
+          success: data.success,
+          message: data.message || (data.success ? 'Gemini connection verified!' : 'Connection issue; fallback active.')
         });
       } else {
         setTestResult({
-          success: true,
-          message: `API endpoint verified. Fallback heuristics active (Status ${res.status}).`
+          success: false,
+          message: `Server returned status ${res.status}. Fallback heuristics active.`
         });
       }
     } catch (err: any) {
       setTestResult({
-        success: true,
-        message: 'Endpoint online. Built-in heuristics handling queries smoothly.'
+        success: false,
+        message: `Connection error: ${err?.message || 'Endpoint unreachable'}. Fallback heuristics active.`
       });
     } finally {
       setTestingKey(false);

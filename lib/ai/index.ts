@@ -38,8 +38,25 @@ export async function analyzeDocument(
     await new Promise((r) => setTimeout(r, 300));
   }
 
-  // If the user uploaded a custom text, run intelligent legal heuristic extraction
+  // If the user uploaded custom text, try live Gemini analysis first
   if (rawText && rawText.length > 50 && rawText !== DEMO_RENTAL_AGREEMENT.rawText) {
+    try {
+      const response = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName, rawText })
+      });
+
+      if (response.ok) {
+        const liveDoc = await response.json();
+        if (liveDoc && liveDoc.clauses && liveDoc.clauses.length > 0) {
+          return liveDoc;
+        }
+      }
+    } catch {
+      // Graceful offline fallback to heuristic parser
+    }
+
     return extractFromCustomText(fileName, rawText);
   }
 

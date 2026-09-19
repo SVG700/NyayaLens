@@ -25,8 +25,36 @@ export default function ComparePage() {
   const [activePresetKey, setActivePresetKey] = useState<string>('lease');
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
   const [copiedSummary, setCopiedSummary] = useState(false);
+  const [liveSynthesis, setLiveSynthesis] = useState<string | null>(null);
+  const [isLiveGenerating, setIsLiveGenerating] = useState(false);
 
   const activePreset: ComparisonPreset = COMPARISON_PRESETS[activePresetKey] || COMPARISON_PRESETS.lease;
+
+  const handleLiveGeminiSynthesis = async () => {
+    setIsLiveGenerating(true);
+    try {
+      const res = await fetch('/api/ai/compare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          docAName: activePreset.docA.name,
+          docAText: activePreset.comparisonItems.map((i) => `${i.field}: ${i.docAValue}`).join('\n'),
+          docBName: activePreset.docB.name,
+          docBText: activePreset.comparisonItems.map((i) => `${i.field}: ${i.docBValue}`).join('\n')
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.summaryAI) {
+          setLiveSynthesis(data.summaryAI);
+        }
+      }
+    } catch {
+      // Graceful fallback to default preset synthesis
+    } finally {
+      setIsLiveGenerating(false);
+    }
+  };
 
   // Extract categories dynamically from active preset
   const categories = ['All', ...Array.from(new Set(activePreset.comparisonItems.map((item) => item.category)))];
@@ -176,6 +204,7 @@ Disclaimer: NyayaLens provides AI-generated legal information for understanding 
                 onClick={() => {
                   setActivePresetKey(key);
                   setSelectedFilter('All');
+                  setLiveSynthesis(null);
                 }}
                 className={cn(
                   'p-3.5 rounded-xl text-left border transition relative text-xs space-y-1',
@@ -291,13 +320,30 @@ Disclaimer: NyayaLens provides AI-generated legal information for understanding 
       </div>
 
       {/* 5. AI Comparative Executive Synthesis */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-50/70 via-indigo-50/50 to-white border border-purple-200/80 shadow-subtle space-y-2.5">
-        <div className="flex items-center gap-2 text-xs font-bold text-purple-950 uppercase tracking-wider">
-          <Sparkles className="w-4 h-4 text-purple-600" />
-          <span>AI Comparative Synthesis & Trade-Off Analysis</span>
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-50/70 via-indigo-50/50 to-white border border-purple-200/80 shadow-subtle space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-purple-950 uppercase tracking-wider">
+            <Sparkles className="w-4 h-4 text-purple-600" />
+            <span>AI Comparative Synthesis & Trade-Off Analysis</span>
+            {liveSynthesis && (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                Live Gemini Response
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={handleLiveGeminiSynthesis}
+            disabled={isLiveGenerating}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-xs font-semibold shadow-2xs transition self-start sm:self-auto"
+          >
+            <Sparkles className={cn('w-3.5 h-3.5', isLiveGenerating && 'animate-spin')} />
+            <span>{isLiveGenerating ? 'Synthesizing with Gemini...' : 'Regenerate with Live Gemini'}</span>
+          </button>
         </div>
+
         <p className="text-sm text-slate-700 leading-relaxed">
-          {activePreset.summaryAI}
+          {liveSynthesis || activePreset.summaryAI}
         </p>
       </div>
 
