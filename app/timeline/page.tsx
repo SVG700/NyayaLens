@@ -1,0 +1,192 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useDocument } from '@/context/DocumentContext';
+import {
+  Calendar,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  Bell,
+  ArrowRight,
+  FileText,
+  Sparkles,
+  CalendarCheck,
+  Check
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
+
+export default function TimelinePage() {
+  const { currentDocument } = useDocument();
+  const [reminderSetId, setReminderSetId] = useState<string | null>(null);
+
+  const handleSetReminder = (id: string) => {
+    setReminderSetId(id);
+    setTimeout(() => setReminderSetId(null), 3000);
+  };
+
+  const upcomingActions = [
+    {
+      title: 'Review renewal terms & rental inflation rates',
+      due: '30 days prior to term end',
+      detail: 'Confirm whether Crestview Properties intends to propose an automatic escalation or new 11-month contract.'
+    },
+    {
+      title: 'Prepare written notice if terminating or moving',
+      due: 'By 31 Oct 2026 (Section 7.1 deadline)',
+      detail: 'Send registered digital or physical certified letter to avoid premature vacation penalty.'
+    },
+    {
+      title: 'Schedule pre-moveout inspection & verify deposit return conditions',
+      due: '14 days before handover',
+      detail: 'Request joint walk-through to prevent unexpected deductions under Section 3.2.'
+    }
+  ];
+
+  return (
+    <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
+      {/* 1. Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+              Important Dates & Deadlines
+            </h1>
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-semibold">
+              Chronological Roadmap
+            </span>
+          </div>
+          <p className="text-slate-500 text-sm mt-1">
+            Grounded milestone schedule for <strong>{currentDocument.name}</strong>.
+          </p>
+        </div>
+
+        <Link
+          href="/checklist"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-subtle transition"
+        >
+          <span>View Action Checklist</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {/* 2. Upcoming Actions Card */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-subtle space-y-4 border-l-4 border-l-indigo-600">
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
+          <CalendarCheck className="w-4 h-4 text-indigo-600" />
+          <span>Upcoming Actions to Take</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {upcomingActions.map((action, i) => (
+            <div
+              key={i}
+              className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5 flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-[10px] font-mono font-bold text-indigo-700 block uppercase">
+                  {action.due}
+                </span>
+                <h4 className="font-bold text-slate-900 text-xs mt-1">
+                  {action.title}
+                </h4>
+                <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                  {action.detail}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Vertical Interactive Timeline */}
+      <div className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-3 sm:before:left-4 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-200">
+        {currentDocument.dates.map((item, idx) => {
+          const isPast = !item.isUpcoming;
+          const isReminderSet = reminderSetId === item.id;
+
+          return (
+            <div key={item.id} className="relative group">
+              {/* Timeline Marker Dot */}
+              <div
+                className={cn(
+                  'absolute -left-6 sm:-left-8 top-1.5 w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-white shadow-xs',
+                  isPast
+                    ? 'bg-slate-400 text-white'
+                    : 'bg-indigo-600 text-white animate-pulse-subtle'
+                )}
+              >
+                {isPast ? (
+                  <Check className="w-3.5 h-3.5" />
+                ) : (
+                  <Clock className="w-3.5 h-3.5" />
+                )}
+              </div>
+
+              {/* Event Content Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-subtle hover:shadow-card transition-all duration-200 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200">
+                      {item.formattedDate}
+                    </span>
+                    <h3 className="font-bold text-slate-900 text-base">
+                      {item.event}
+                    </h3>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {item.sourceSection && (
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {item.sourceSection}
+                      </span>
+                    )}
+                    <span
+                      className={cn(
+                        'text-[11px] font-semibold px-2 py-0.5 rounded-full border',
+                        isPast
+                          ? 'bg-slate-100 text-slate-600 border-slate-200'
+                          : 'bg-amber-50 text-amber-800 border-amber-200'
+                      )}
+                    >
+                      {isPast ? 'Commenced' : `${item.daysRemaining} days remaining`}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {item.explanation}
+                </p>
+
+                <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div>
+                    <strong className="text-indigo-950">Action Required: </strong>
+                    <span className="text-indigo-900">{item.actionRequired}</span>
+                  </div>
+
+                  <button
+                    onClick={() => handleSetReminder(item.id)}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs shadow-2xs transition"
+                  >
+                    {isReminderSet ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Calendar Synced</span>
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Set Reminder</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
