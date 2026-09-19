@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { computeCacheFingerprint } from '@/lib/serverUtils';
 
 // In-memory cache for document analyses to eliminate redundant Gemini processing
 const analyzeCache = new Map<string, { data: any; timestamp: number }>();
@@ -20,8 +21,8 @@ export async function POST(req: NextRequest) {
     const sanitizedRawText = rawText.slice(0, 25000);
     const safeFileName = typeof fileName === 'string' ? fileName.slice(0, 100) : 'Analyzed Agreement';
 
-    // Check cache
-    const cacheKey = `${safeFileName}:${sanitizedRawText.slice(0, 500)}:${sanitizedRawText.length}`;
+    // Deterministic SHA-256 fingerprint incorporating file name and full sanitized text
+    const cacheKey = computeCacheFingerprint(safeFileName, sanitizedRawText);
     const cached = analyzeCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
       return NextResponse.json({

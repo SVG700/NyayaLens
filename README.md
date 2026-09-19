@@ -42,9 +42,9 @@ The following matrix illustrates how every core requirement of the "AI for Legal
 | **Grounded Document Q&A** | Conversational conversational AI answering inquiries strictly grounded in the document text. | `/ask`<br>`/api/ai/ask` | Emits verified citations (clause title, section number, page number, and verbatim excerpt snippet). |
 | **Document Comparison & Diffing** | Side-by-side comparative analysis of draft revisions, counter-offers, or standard vs. amended terms. | `/compare`<br>`/api/ai/compare` | Synthesizes net trade-offs and flags elevated risk shifts (`warning`, `significant_difference`). |
 | **Actionable Checklists** | Phased diligence checklists guiding users step-by-step through the agreement lifecycle. | `/checklist` | Categorizes into *Pre-Signing*, *Immediate*, *Ongoing*, and *Legal Consultation* with completion tracking. |
-| **Lawyer Consultation Preparation** | Automated synthesis of high-leverage inquiries to ask licensed counsel. | `/checklist`<br>`components/ExplainWhyModal` | Generates copyable **Counsel Preparation Briefs**, cutting attorney billable hours by 50–70%. |
+| **Lawyer Consultation Preparation** | Automated synthesis of high-leverage inquiries to ask licensed counsel. | `/checklist`<br>`components/ExplainWhyModal` | Generates copyable **Counsel Preparation Briefs**, designed to streamline attorney consultations by organizing facts, flagged clauses, and high-value inquiries in advance. |
 | **Live GenAI Integration** | Real-time reasoning using Google's latest multimodal Gemini 2.5 Flash model. | `/api/ai/*` | Structured JSON schema enforcement, sub-1.5s latency, and server-side key security. |
-| **Offline Fallback Resilience** | Built-in semantic heuristics engine ensuring 100% operational uptime without API keys. | `lib/ai/index.ts`<br>`lib/mockData.ts` | Complete functionality for 3 pre-loaded agreements and uploaded custom documents without external dependencies. |
+| **Offline Fallback Resilience** | Built-in semantic heuristics engine providing reliable offline document parsing and grounded Q&A without requiring external API keys. | `lib/ai/index.ts`<br>`lib/mockData.ts` | Complete functionality for 3 pre-loaded agreements and uploaded custom documents without external dependencies. |
 | **Responsible AI & Legal Ethics** | Prominent legal disclaimers, refusal to issue definitive legal rulings, and client-side privacy. | Persistent UI & `/` | Never states whether clauses are "illegal"; strictly informs, educates, and prompts human legal review. |
 
 ---
@@ -56,7 +56,7 @@ NyayaLens is built for individuals and organizations that routinely interact wit
 * **Tenants & Home Renters**: Moving into residential apartments, navigating security deposit return rules, subletting restrictions, maintenance allocations, and premature lease break penalties.
 * **Employees & Tech Professionals**: Evaluating employment offers, non-compete enforceability, equity vesting schedules (1-year cliffs), invention assignment clauses (California Labor Code § 2870), and severance covenants.
 * **Freelancers, Consultants & Agency Owners**: Reviewing Master Services Agreements (MSAs), Net-30/45 payment schedules, deemed deliverable acceptance windows, liability caps, and mutual indemnity provisions.
-* **Small Business Owners & Early Founders**: Understanding commercial office leases, vendor contracts, NDAs, and contractor agreements without incurring tens of thousands of dollars in preliminary legal fees.
+* **Small Business Owners & Early Founders**: Understanding commercial office leases, vendor contracts, NDAs, and contractor agreements without incurring expensive consultation fees for routine preliminary document reviews.
 * **Legal Aid Clinics & Pro-Bono Volunteers**: Expediting initial client triage and intake by rapidly digesting lengthy contracts and surfacing key factual issues before attorney review.
 
 ---
@@ -167,7 +167,7 @@ NyayaLens is architected from the ground up to adhere to strict ethical and lega
 ## 7. Tech Stack & Dependencies
 
 * **Framework**: Next.js 14 (App Router, React 18, Serverless API Routes)
-* **Language**: TypeScript (Strict Mode, 100% type coverage)
+* **Language**: TypeScript (Strict Mode, verified with zero type errors)
 * **Styling**: Tailwind CSS with custom legal SaaS color palette
 * **Icons**: Lucide React
 * **Visualizations**: Recharts (Risk distribution charts and metrics)

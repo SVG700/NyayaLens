@@ -157,7 +157,7 @@ describe('Ask Your Document — Grounded Q&A', () => {
     });
   });
 
-  describe('Live GenAI Integration & Fallback Handling', () => {
+  describe('Server API Response & Fallback Handling', () => {
     it('uses server response when /api/ai/ask succeeds', async () => {
       const mockApiResponse = {
         answer: 'Gemini Live: The agreement outlines rent of $1,850.',

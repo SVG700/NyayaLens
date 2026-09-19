@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { computeCacheFingerprint } from '@/lib/serverUtils';
 
 // In-memory cache for document comparisons to eliminate duplicate Gemini calls
 const compareCache = new Map<string, { data: any; timestamp: number }>();
@@ -22,8 +23,14 @@ export async function POST(req: NextRequest) {
     const safeDocAName = typeof docAName === 'string' ? docAName.slice(0, 100) : 'Draft A';
     const safeDocBName = typeof docBName === 'string' ? docBName.slice(0, 100) : 'Draft B';
 
-    // Check cache
-    const cacheKey = `${safeDocAName}:${safeDocBName}:${sanitizedDocA.slice(0, 300)}:${sanitizedDocB.slice(0, 300)}`;
+    // Deterministic SHA-256 fingerprint incorporating baseline and revision names and full sanitized document texts
+    const cacheKey = computeCacheFingerprint(
+      safeDocAName,
+      sanitizedDocA,
+      safeDocBName,
+      sanitizedDocB
+    );
+
     const cached = compareCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
       return NextResponse.json({

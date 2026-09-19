@@ -146,6 +146,64 @@ describe('Gemini API Routes & Response Validation', () => {
       const json = await res.json();
       expect(json.error).toContain('Gemini API returned status 502');
     });
+
+    it('returns cached response on identical subsequent inquiry and bypasses when text or history changes', async () => {
+      const mockGeminiJson = {
+        answer: 'Base salary is $150,000.',
+        sources: [{ clauseTitle: 'Salary', section: '1.0', page: 1, snippet: '$150,000' }]
+      };
+
+      let fetchCount = 0;
+      global.fetch = vi.fn().mockImplementation(async () => {
+        fetchCount++;
+        return {
+          ok: true,
+          json: async () => ({
+            candidates: [{ content: { parts: [{ text: JSON.stringify(mockGeminiJson) }] } }]
+          })
+        };
+      });
+
+      const body1 = {
+        documentName: 'Employment.txt',
+        rawText: 'Section 1.0 Salary is $150,000 payable monthly.',
+        question: 'What is the salary?',
+        customApiKey: 'test-mock-key'
+      };
+
+      // First call -> misses cache, hits fetch
+      const res1 = await handleAsk(new NextRequest('http://localhost:3000/api/ai/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body1)
+      }));
+      const json1 = await res1.json();
+      expect(fetchCount).toBe(1);
+      expect(json1.isCached).toBeUndefined();
+
+      // Second identical call -> hits cache, does not hit fetch
+      const res2 = await handleAsk(new NextRequest('http://localhost:3000/api/ai/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body1)
+      }));
+      const json2 = await res2.json();
+      expect(fetchCount).toBe(1);
+      expect(json2.isCached).toBe(true);
+
+      // Third call with changed history -> misses cache, triggers fetch
+      const res3 = await handleAsk(new NextRequest('http://localhost:3000/api/ai/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...body1,
+          conversationHistory: [{ sender: 'user', text: 'Previous query' }]
+        })
+      }));
+      const json3 = await res3.json();
+      expect(fetchCount).toBe(2);
+      expect(json3.isCached).toBeUndefined();
+    });
   });
 
   describe('POST /api/ai/analyze', () => {

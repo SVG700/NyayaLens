@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { computeCacheFingerprint } from '@/lib/serverUtils';
 
 // In-memory cache for repeated inquiries to eliminate duplicate Gemini API calls
 const askCache = new Map<string, { data: any; timestamp: number }>();
@@ -21,8 +22,18 @@ export async function POST(req: NextRequest) {
     const sanitizedQuestion = question.trim().slice(0, 1000);
     const sanitizedRawText = typeof rawText === 'string' ? rawText.slice(0, 20000) : '';
 
-    // Check in-memory cache for duplicate queries
-    const cacheKey = `${documentName || ''}:${sanitizedQuestion.toLowerCase()}:${sanitizedRawText.slice(0, 400)}`;
+    const formattedHistory = Array.isArray(conversationHistory) && conversationHistory.length > 0
+      ? conversationHistory.map((m: any) => `${m?.sender === 'user' ? 'User' : 'Assistant'}: ${m?.text || ''}`).join('\n')
+      : 'None';
+
+    // Deterministic SHA-256 fingerprint incorporating document name, normalized question, full sanitized document text, and full dialogue context
+    const cacheKey = computeCacheFingerprint(
+      documentName || '',
+      sanitizedQuestion.toLowerCase(),
+      sanitizedRawText,
+      formattedHistory
+    );
+
     const cachedEntry = askCache.get(cacheKey);
     if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_TTL_MS) {
       return NextResponse.json({
@@ -51,10 +62,6 @@ export async function POST(req: NextRequest) {
       'gemini-2.5-flash';
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-
-    const formattedHistory = Array.isArray(conversationHistory) && conversationHistory.length > 0
-      ? conversationHistory.map((m: any) => `${m.sender === 'user' ? 'User' : 'Assistant'}: ${m.text}`).join('\n')
-      : 'None';
 
     const prompt = `You are NyayaLens, an expert AI legal document understanding and assistance system.
 Analyze the provided document text to answer the user's inquiry accurately, thoroughly, and objectively.
