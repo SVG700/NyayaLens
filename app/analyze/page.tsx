@@ -1,47 +1,62 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useDocument } from '@/context/DocumentContext';
 import { Clause, ClauseCategory, ClauseTag } from '@/lib/types';
 import { ClauseCard } from '@/components/ClauseCard';
 import { ExplainWhyModal } from '@/components/ExplainWhyModal';
 import { AIInsightCard } from '@/components/AIInsightCard';
+import { ClauseAnalyticsChart } from '@/components/ClauseAnalyticsChart';
 import {
   FileText,
   CheckCircle2,
   AlertTriangle,
   Calendar,
   Sparkles,
-  Users,
-  Clock,
   Search,
   Filter,
   ChevronDown,
   ChevronUp,
   HelpCircle,
   ArrowRight,
-  ShieldAlert,
-  Download,
-  Share2,
-  ExternalLink,
+  Printer,
   MessageSquare,
-  BookOpen
+  BookOpen,
+  ZoomIn,
+  ZoomOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-export default function AnalyzePage() {
+function AnalyzeContent() {
   const { currentDocument } = useDocument();
+  const searchParams = useSearchParams();
+  const initialClause = searchParams.get('clause');
 
   const [activeTab, setActiveTab] = useState<
     'overview' | 'clauses' | 'obligations' | 'dates' | 'review'
   >('overview');
   const [selectedClause, setSelectedClause] = useState<Clause | null>(null);
   const [isExplainModalOpen, setIsExplainModalOpen] = useState(false);
-  const [highlightedClauseId, setHighlightedClauseId] = useState<string | null>(null);
+  const [highlightedClauseId, setHighlightedClauseId] = useState<string | null>(initialClause || null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewerSearch, setViewerSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [expandedSimpleSection, setExpandedSimpleSection] = useState<string | null>('core');
+  const [textSize, setTextSize] = useState<'xs' | 'sm' | 'base'>('xs');
+
+  useEffect(() => {
+    if (initialClause) {
+      setHighlightedClauseId(initialClause);
+      const element = document.getElementById(`doc-clause-${initialClause}`);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    }
+  }, [initialClause]);
 
   const handleExplainWhy = (clause: Clause) => {
     setSelectedClause(clause);
@@ -56,7 +71,7 @@ export default function AnalyzePage() {
     }
   };
 
-  // Filter clauses for tab
+  // Filter clauses for AI tab
   const filteredClauses = currentDocument.clauses.filter((clause) => {
     const matchesCategory =
       selectedCategory === 'All' ||
@@ -68,6 +83,28 @@ export default function AnalyzePage() {
       clause.simplifiedText.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  // Filter clauses inside Document Viewer
+  const viewerClauses = currentDocument.clauses.filter((clause) => {
+    if (!viewerSearch.trim()) return true;
+    const q = viewerSearch.toLowerCase();
+    return (
+      clause.title.toLowerCase().includes(q) ||
+      clause.sectionNumber.toLowerCase().includes(q) ||
+      clause.originalText.toLowerCase().includes(q)
+    );
+  });
+
+  const getTextClass = () => {
+    switch (textSize) {
+      case 'base':
+        return 'text-sm leading-relaxed';
+      case 'sm':
+        return 'text-xs leading-relaxed';
+      default:
+        return 'text-[11px] leading-relaxed';
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col bg-slate-100/60">
@@ -95,6 +132,15 @@ export default function AnalyzePage() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition"
+              title="Print or save as PDF"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Print Analysis</span>
+            </button>
+
             <Link
               href="/ask"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-semibold transition"
@@ -119,15 +165,63 @@ export default function AnalyzePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* LEFT: Document Viewer (5 cols) */}
           <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-subtle overflow-hidden flex flex-col h-[820px]">
-            {/* Viewer Header */}
-            <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs text-slate-600">
-              <div className="flex items-center gap-2 font-mono font-medium">
-                <BookOpen className="w-4 h-4 text-indigo-600" />
-                <span>Document Viewer</span>
+            {/* Viewer Header & Controls */}
+            <div className="p-3 bg-slate-50 border-b border-slate-200 flex flex-col gap-2">
+              <div className="flex items-center justify-between text-xs text-slate-600">
+                <div className="flex items-center gap-2 font-mono font-medium">
+                  <BookOpen className="w-4 h-4 text-indigo-600" />
+                  <span>Document Viewer</span>
+                </div>
+
+                {/* Font Size & Zoom Controls */}
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setTextSize('xs')}
+                    className={cn(
+                      'px-1.5 py-0.5 rounded text-[10px] font-mono border',
+                      textSize === 'xs'
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                    )}
+                  >
+                    A-
+                  </button>
+                  <button
+                    onClick={() => setTextSize('sm')}
+                    className={cn(
+                      'px-1.5 py-0.5 rounded text-[10px] font-mono border',
+                      textSize === 'sm'
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                    )}
+                  >
+                    A
+                  </button>
+                  <button
+                    onClick={() => setTextSize('base')}
+                    className={cn(
+                      'px-1.5 py-0.5 rounded text-[10px] font-mono border',
+                      textSize === 'base'
+                        ? 'bg-slate-900 text-white border-slate-900'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                    )}
+                  >
+                    A+
+                  </button>
+                </div>
               </div>
-              <span className="text-[11px] text-slate-400 font-mono">
-                {currentDocument.fileSize || '240 KB'} • Interactive Cites
-              </span>
+
+              {/* Viewer Search Bar */}
+              <div className="relative">
+                <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Filter clauses in document..."
+                  value={viewerSearch}
+                  onChange={(e) => setViewerSearch(e.target.value)}
+                  className="w-full pl-7 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
             </div>
 
             {/* Document Content Scroll Area */}
@@ -145,7 +239,7 @@ export default function AnalyzePage() {
               </div>
 
               {/* Render structured clauses inside document viewer */}
-              {currentDocument.clauses.map((clause, idx) => {
+              {viewerClauses.map((clause) => {
                 const isSelected = highlightedClauseId === clause.id;
                 return (
                   <div
@@ -158,7 +252,7 @@ export default function AnalyzePage() {
                     className={cn(
                       'p-3.5 rounded-xl border transition-all cursor-pointer relative',
                       isSelected
-                        ? 'bg-amber-50/80 border-amber-400 ring-2 ring-amber-400/30'
+                        ? 'bg-amber-50/90 border-amber-400 ring-2 ring-amber-400/30'
                         : 'bg-slate-50/60 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                     )}
                   >
@@ -174,7 +268,7 @@ export default function AnalyzePage() {
                       </span>
                     </div>
 
-                    <p className="text-[11px] leading-relaxed text-slate-700">
+                    <p className={cn('text-slate-700 font-mono', getTextClass())}>
                       "{clause.originalText}"
                     </p>
 
@@ -285,6 +379,9 @@ export default function AnalyzePage() {
                       </strong>
                     </div>
                   </div>
+
+                  {/* Clause Analytics Chart */}
+                  <ClauseAnalyticsChart document={currentDocument} />
 
                   {/* AI Summary Card */}
                   <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-white to-slate-50 border border-indigo-100 shadow-2xs">
@@ -443,12 +540,16 @@ export default function AnalyzePage() {
                   {/* List of Clause Cards */}
                   <div className="space-y-4">
                     {filteredClauses.map((clause) => (
-                      <ClauseCard
+                      <div
                         key={clause.id}
-                        clause={clause}
-                        onExplainWhy={handleExplainWhy}
-                        isHighlighted={highlightedClauseId === clause.id}
-                      />
+                        onClick={() => handleSelectClauseForViewer(clause)}
+                      >
+                        <ClauseCard
+                          clause={clause}
+                          onExplainWhy={handleExplainWhy}
+                          isHighlighted={highlightedClauseId === clause.id}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -552,7 +653,7 @@ export default function AnalyzePage() {
                         content={rp.summary}
                         actionLabel="View Guidance"
                         onAction={() => {
-                          const clause = currentDocument.clauses.find(c => c.id === rp.clauseId);
+                          const clause = currentDocument.clauses.find((c) => c.id === rp.clauseId);
                           if (clause) handleExplainWhy(clause);
                         }}
                         footer={
@@ -577,5 +678,19 @@ export default function AnalyzePage() {
         onClose={() => setIsExplainModalOpen(false)}
       />
     </div>
+  );
+}
+
+export default function AnalyzePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
+          Loading Document Analysis Workspace...
+        </div>
+      }
+    >
+      <AnalyzeContent />
+    </Suspense>
   );
 }

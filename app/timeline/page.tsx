@@ -12,7 +12,9 @@ import {
   FileText,
   Sparkles,
   CalendarCheck,
-  Check
+  Check,
+  Download,
+  Filter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -20,10 +22,50 @@ import Link from 'next/link';
 export default function TimelinePage() {
   const { currentDocument } = useDocument();
   const [reminderSetId, setReminderSetId] = useState<string | null>(null);
+  const [filterType, setFilterType] = useState<'all' | 'upcoming' | 'past'>('all');
 
   const handleSetReminder = (id: string) => {
     setReminderSetId(id);
     setTimeout(() => setReminderSetId(null), 3000);
+  };
+
+  const handleExportICS = () => {
+    // Generate .ics iCalendar file for all document dates
+    const calendarHeader = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//NyayaLens//Legal Intelligence//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH'
+    ].join('\r\n');
+
+    const calendarEvents = currentDocument.dates.map((dt) => {
+      // format YYYYMMDD
+      const cleanDate = dt.date.replace(/-/g, '');
+      return [
+        'BEGIN:VEVENT',
+        `UID:nyayalens-${dt.id}-${Date.now()}@nyayalens.local`,
+        `DTSTAMP:${cleanDate}T090000Z`,
+        `DTSTART;VALUE=DATE:${cleanDate}`,
+        `SUMMARY:[NyayaLens] ${dt.event}`,
+        `DESCRIPTION:${dt.explanation}\\n\\nAction Required: ${dt.actionRequired}`,
+        'STATUS:CONFIRMED',
+        'END:VEVENT'
+      ].join('\r\n');
+    }).join('\r\n');
+
+    const calendarFooter = '\r\nEND:VCALENDAR';
+    const icsContent = `${calendarHeader}\r\n${calendarEvents}${calendarFooter}`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${currentDocument.name.replace(/\s+/g, '_')}_Deadlines.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const upcomingActions = [
@@ -44,6 +86,12 @@ export default function TimelinePage() {
     }
   ];
 
+  const filteredDates = currentDocument.dates.filter((dt) => {
+    if (filterType === 'upcoming') return dt.isUpcoming;
+    if (filterType === 'past') return !dt.isUpcoming;
+    return true;
+  });
+
   return (
     <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
       {/* 1. Header */}
@@ -62,13 +110,24 @@ export default function TimelinePage() {
           </p>
         </div>
 
-        <Link
-          href="/checklist"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-subtle transition"
-        >
-          <span>View Action Checklist</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportICS}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-semibold transition"
+            title="Export deadlines to Apple Calendar, Google Calendar, or Outlook"
+          >
+            <Download className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Export to Calendar (.ics)</span>
+          </button>
+
+          <Link
+            href="/checklist"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-subtle transition"
+          >
+            <span>View Action Checklist</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
       {/* 2. Upcoming Actions Card */}
@@ -100,9 +159,37 @@ export default function TimelinePage() {
         </div>
       </div>
 
-      {/* 3. Vertical Interactive Timeline */}
+      {/* 3. Filter Controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-400 flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5" />
+            Filter:
+          </span>
+          {(['all', 'upcoming', 'past'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setFilterType(t)}
+              className={cn(
+                'px-3 py-1 text-xs font-semibold rounded-lg transition capitalize',
+                filterType === t
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              )}
+            >
+              {t === 'all' ? 'All Milestones' : t}
+            </button>
+          ))}
+        </div>
+
+        <span className="text-xs text-slate-500 font-mono">
+          {filteredDates.length} milestones
+        </span>
+      </div>
+
+      {/* 4. Vertical Interactive Timeline */}
       <div className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-3 sm:before:left-4 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-200">
-        {currentDocument.dates.map((item, idx) => {
+        {filteredDates.map((item) => {
           const isPast = !item.isUpcoming;
           const isReminderSet = reminderSetId === item.id;
 

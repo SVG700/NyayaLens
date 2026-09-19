@@ -22,6 +22,7 @@ import {
   Plus
 } from 'lucide-react';
 import { ALL_DEMO_DOCUMENTS } from '@/lib/mockData';
+import { ClauseAnalyticsChart } from '@/components/ClauseAnalyticsChart';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -218,7 +219,22 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 5. Recent Documents */}
+      {/* 5. Document Analytics Strip */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-bold text-slate-900">
+              Active Agreement Analytics ({currentDocument.name})
+            </h2>
+          </div>
+          <span className="text-xs text-indigo-600 font-medium">
+            Category & Risk Breakdown
+          </span>
+        </div>
+        <ClauseAnalyticsChart document={currentDocument} />
+      </div>
+
+      {/* 6. Recent Documents */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-slate-900">Recent Documents</h2>

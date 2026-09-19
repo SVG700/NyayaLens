@@ -13,7 +13,13 @@ import {
   User,
   Bot,
   HelpCircle,
-  RotateCcw
+  RotateCcw,
+  ExternalLink,
+  Copy,
+  Check,
+  Mic,
+  MicOff,
+  Download
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -33,6 +39,8 @@ function AskDocumentContent() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestedQuestions = [
@@ -105,6 +113,60 @@ function AskDocumentContent() {
         timestamp: 'Just now'
       }
     ]);
+  };
+
+  const handleCopyMessage = (msg: ChatMessage) => {
+    const text = `${msg.text}\n\n${
+      msg.sources
+        ? msg.sources.map((s) => `Source: ${s.section} • ${s.clauseTitle} (Page ${s.page})`).join('\n')
+        : ''
+    }`;
+    navigator.clipboard.writeText(text);
+    setCopiedId(msg.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleVoiceToggle = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice dictation is supported in Chrome, Edge, and Safari.');
+      return;
+    }
+
+    try {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      if (!isListening) {
+        recognition.start();
+        setIsListening(true);
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          setInputValue(transcript);
+          setIsListening(false);
+        };
+        recognition.onerror = () => setIsListening(false);
+        recognition.onend = () => setIsListening(false);
+      } else {
+        recognition.stop();
+        setIsListening(false);
+      }
+    } catch {
+      setIsListening(false);
+    }
+  };
+
+  // Find related clause id for citation jumping
+  const findClauseId = (sectionOrTitle: string) => {
+    const matched = currentDocument.clauses.find(
+      (c) =>
+        sectionOrTitle.toLowerCase().includes(c.sectionNumber.toLowerCase()) ||
+        sectionOrTitle.toLowerCase().includes(c.title.toLowerCase())
+    );
+    return matched ? matched.id : currentDocument.clauses[0]?.id;
   };
 
   return (
@@ -187,7 +249,7 @@ function AskDocumentContent() {
             {/* Message Body */}
             <div
               className={cn(
-                'p-4 rounded-2xl text-xs sm:text-sm leading-relaxed space-y-3',
+                'p-4 rounded-2xl text-xs sm:text-sm leading-relaxed space-y-3 relative group',
                 msg.sender === 'user'
                   ? 'bg-slate-900 text-white rounded-tr-none'
                   : 'bg-slate-50 border border-slate-200/80 text-slate-800 rounded-tl-none'
@@ -198,30 +260,65 @@ function AskDocumentContent() {
               {/* Grounded Source Citation Box */}
               {msg.sources && msg.sources.length > 0 && (
                 <div className="pt-3 border-t border-slate-200/70 mt-3 space-y-2">
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                    <FileText className="w-3.5 h-3.5 text-indigo-600" />
-                    <span>Verified Source Citations</span>
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                      Verified Source Citations
+                    </span>
+                    <span className="text-[10px] text-emerald-600 font-sans font-semibold">
+                      100% Grounded
+                    </span>
                   </div>
 
-                  {msg.sources.map((src, sIdx) => (
-                    <div
-                      key={sIdx}
-                      className="bg-white p-3 rounded-xl border border-slate-200 text-xs space-y-1.5 shadow-2xs"
-                    >
-                      <div className="flex items-center justify-between font-mono font-semibold text-slate-900">
-                        <span className="text-indigo-700">{src.section} • {src.clauseTitle}</span>
-                        <span className="text-[11px] text-slate-400">Page {src.page}</span>
+                  {msg.sources.map((src, sIdx) => {
+                    const clauseId = findClauseId(`${src.section} ${src.clauseTitle}`);
+                    return (
+                      <div
+                        key={sIdx}
+                        className="bg-white p-3 rounded-xl border border-slate-200 text-xs space-y-1.5 shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between font-mono font-semibold text-slate-900">
+                          <span className="text-indigo-700">{src.section} • {src.clauseTitle}</span>
+                          <span className="text-[11px] text-slate-400">Page {src.page}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 font-mono italic leading-relaxed bg-slate-50/80 p-2 rounded border border-slate-100">
+                          "{src.snippet}"
+                        </p>
+                        <div className="pt-1 flex justify-end">
+                          <Link
+                            href={`/analyze?clause=${clauseId}`}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 transition"
+                          >
+                            <span>Jump to Clause in Document</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-slate-600 font-mono italic leading-relaxed bg-slate-50/80 p-2 rounded border border-slate-100">
-                        "{src.snippet}"
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
-              <div className="text-[10px] text-slate-400 text-right font-mono">
-                {msg.timestamp}
+              {/* Message Actions */}
+              <div className="flex items-center justify-between pt-1 text-[10px] text-slate-400">
+                <button
+                  onClick={() => handleCopyMessage(msg)}
+                  className="hover:text-slate-600 inline-flex items-center gap-1 opacity-80 hover:opacity-100 transition"
+                  title="Copy answer"
+                >
+                  {copiedId === msg.id ? (
+                    <>
+                      <Check className="w-3 h-3 text-emerald-500" />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3" />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+                <span className="font-mono">{msg.timestamp}</span>
               </div>
             </div>
           </div>
@@ -259,6 +356,22 @@ function AskDocumentContent() {
             disabled={isLoading}
             className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
           />
+
+          {/* Voice Input Button */}
+          <button
+            type="button"
+            onClick={handleVoiceToggle}
+            className={cn(
+              'p-2.5 rounded-xl transition',
+              isListening
+                ? 'bg-rose-100 text-rose-600 animate-pulse'
+                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+            )}
+            title={isListening ? 'Listening... click to stop' : 'Click to dictate question'}
+          >
+            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </button>
+
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim()}

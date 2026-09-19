@@ -29,11 +29,11 @@ export async function analyzeDocument(
   // Report progress milestones for realistic user feedback
   if (onProgress) {
     onProgress('Uploading document securely...', 20);
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 350));
     onProgress('Extracting legal terminology and structure...', 45);
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 400));
     onProgress('Analyzing clauses, obligations, and liabilities...', 75);
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 450));
     onProgress('Synthesizing plain-language intelligence & action items...', 95);
     await new Promise((r) => setTimeout(r, 300));
   }
@@ -82,7 +82,7 @@ export async function answerDocumentQuestion(
   const normalizedQ = question.toLowerCase();
 
   if (normalizedQ.includes('termination') || normalizedQ.includes('notice') || normalizedQ.includes('leave') || normalizedQ.includes('vacate') || normalizedQ.includes('cancel')) {
-    const clause = document.clauses.find(c => c.category === 'Termination') || document.clauses[5];
+    const clause = document.clauses.find(c => c.category === 'Termination') || document.clauses[5] || document.clauses[0];
     return {
       answer: `According to ${clause.sectionNumber}, either party may terminate the agreement prior to expiration by furnishing thirty (30) calendar days prior written notice. However, please note that Section 7.2 states that if you vacate prior to the completion of the 11-month term without mutual consent, you forfeit 50% of the security deposit ($1,850) as liquidated damages.`,
       sources: [
@@ -97,7 +97,7 @@ export async function answerDocumentQuestion(
   }
 
   if (normalizedQ.includes('rent') || normalizedQ.includes('late') || normalizedQ.includes('pay') || normalizedQ.includes('fee') || normalizedQ.includes('penalty')) {
-    const clause = document.clauses.find(c => c.title.toLowerCase().includes('rent')) || document.clauses[1];
+    const clause = document.clauses.find(c => c.title.toLowerCase().includes('rent') || c.category === 'Financial') || document.clauses[1] || document.clauses[0];
     return {
       answer: `Monthly rent is $1,850.00, payable in advance on or before the 1st of each month via electronic transfer. A 5-day grace period is granted until the 5th. Payments made after 11:59 PM on the 5th incur a mandatory late administrative charge of $75.00, which subsequently compounds at 1.5% weekly for further delays.`,
       sources: [
@@ -112,7 +112,7 @@ export async function answerDocumentQuestion(
   }
 
   if (normalizedQ.includes('deposit') || normalizedQ.includes('security') || normalizedQ.includes('refund') || normalizedQ.includes('return')) {
-    const clause = document.clauses.find(c => c.title.toLowerCase().includes('deposit')) || document.clauses[2];
+    const clause = document.clauses.find(c => c.title.toLowerCase().includes('deposit')) || document.clauses[2] || document.clauses[0];
     return {
       answer: `The security deposit is $3,700.00 (equivalent to two calendar months base rent). Under Section 3.2, the Landlord holds this deposit and is allotted forty-five (45) business days following full vacation to return the balance alongside an itemized list of deductions for structural damage or unpaid charges.`,
       sources: [
@@ -127,7 +127,7 @@ export async function answerDocumentQuestion(
   }
 
   if (normalizedQ.includes('repair') || normalizedQ.includes('maintenance') || normalizedQ.includes('fix') || normalizedQ.includes('damage') || normalizedQ.includes('clog')) {
-    const clause = document.clauses.find(c => c.category === 'Responsibilities' || c.title.toLowerCase().includes('maintenance')) || document.clauses[3];
+    const clause = document.clauses.find(c => c.category === 'Responsibilities' || c.title.toLowerCase().includes('maintenance')) || document.clauses[3] || document.clauses[0];
     return {
       answer: `Maintenance responsibilities are divided based on cost: under Section 5.1, the Tenant is financially responsible for all minor repairs costing $100.00 or less per incident (such as plumbing clogs, washer gaskets, or lightbulbs). Section 5.2 obligates the Landlord to cover major structural, roofing, and HVAC repairs exceeding $100.00, provided the tenant gives written notice within 48 hours.`,
       sources: [
@@ -142,7 +142,7 @@ export async function answerDocumentQuestion(
   }
 
   if (normalizedQ.includes('enter') || normalizedQ.includes('entry') || normalizedQ.includes('inspection') || normalizedQ.includes('visit') || normalizedQ.includes('privacy')) {
-    const clause = document.clauses.find(c => c.title.toLowerCase().includes('entry') || c.category === 'Governance') || document.clauses[6];
+    const clause = document.clauses.find(c => c.title.toLowerCase().includes('entry') || c.category === 'Governance') || document.clauses[6] || document.clauses[0];
     return {
       answer: `Under Section 8.1, the Landlord or authorized technicians may enter the premises during business hours (8:00 AM to 6:00 PM) for safety inspections, periodic appraisal, or repairs after providing at least twelve (12) hours advance digital notice. In emergency situations threatening catastrophic damage, entry is permitted immediately without prior notice.`,
       sources: [
@@ -157,7 +157,7 @@ export async function answerDocumentQuestion(
   }
 
   if (normalizedQ.includes('sublet') || normalizedQ.includes('airbnb') || normalizedQ.includes('roommate') || normalizedQ.includes('guest')) {
-    const clause = document.clauses.find(c => c.title.toLowerCase().includes('sublet')) || document.clauses[4];
+    const clause = document.clauses.find(c => c.title.toLowerCase().includes('sublet')) || document.clauses[4] || document.clauses[0];
     return {
       answer: `Under Section 6.2, subletting, transferring the lease, or hosting paying guests on platforms such as Airbnb or VRBO is strictly prohibited without prior explicit written consent from the Landlord. The premises must be used exclusively as a private single-family residence.`,
       sources: [
@@ -172,15 +172,18 @@ export async function answerDocumentQuestion(
   }
 
   // Generic document grounded summary answer
-  const firstClause = document.clauses[0] || DEMO_RENTAL_AGREEMENT.clauses[0];
+  const matchedClause = document.clauses.find(c =>
+    c.title.toLowerCase().split(' ').some(w => w.length > 3 && normalizedQ.includes(w))
+  ) || document.clauses[0] || DEMO_RENTAL_AGREEMENT.clauses[0];
+
   return {
-    answer: `Based on the analyzed text in "${document.name}", this document establishes binding terms between ${document.parties.join(' and ')}. Key obligations include adhering to scheduled deadlines, maintaining designated responsibilities, and following the formal 30-day notice procedure outlined in Section 7.1 before terminating.`,
+    answer: `Based on the analyzed provisions in "${document.name}", ${matchedClause.title} (${matchedClause.sectionNumber}) specifies: "${matchedClause.simplifiedText}". Please review the verified contract source or prepare a targeted inquiry with your attorney.`,
     sources: [
       {
-        clauseTitle: firstClause.title,
-        section: firstClause.sectionNumber,
-        page: firstClause.pageNumber,
-        snippet: firstClause.simplifiedText
+        clauseTitle: matchedClause.title,
+        section: matchedClause.sectionNumber,
+        page: matchedClause.pageNumber,
+        snippet: matchedClause.originalText.slice(0, 200) + '...'
       }
     ]
   };
@@ -220,10 +223,31 @@ function extractFromCustomText(fileName: string, text: string): LegalDocument {
   let match;
   let index = 1;
 
-  while ((match = clauseRegex.exec(text)) !== null && foundClauses.length < 8) {
+  while ((match = clauseRegex.exec(text)) !== null && foundClauses.length < 10) {
     const secNum = match[1] ? `Section ${match[1]}` : `Section ${index}.0`;
     const heading = match[2]?.trim() || `Clause ${index}`;
     const rawSnippet = text.slice(match.index, match.index + 350).trim();
+
+    const lowerHeading = heading.toLowerCase();
+    let cat: any = 'General';
+    let tags: any = ['Informational'];
+
+    if (lowerHeading.includes('rent') || lowerHeading.includes('fee') || lowerHeading.includes('deposit') || lowerHeading.includes('payment') || lowerHeading.includes('compensation')) {
+      cat = 'Financial';
+      tags = ['Important', 'Financial'];
+    } else if (lowerHeading.includes('term') || lowerHeading.includes('terminat') || lowerHeading.includes('notice') || lowerHeading.includes('exit')) {
+      cat = 'Termination';
+      tags = ['Important', 'Review Recommended'];
+    } else if (lowerHeading.includes('liabilit') || lowerHeading.includes('indemn') || lowerHeading.includes('warranty') || lowerHeading.includes('intellectual')) {
+      cat = 'Liability';
+      tags = ['Potential Concern', 'Review Recommended'];
+    } else if (lowerHeading.includes('repair') || lowerHeading.includes('duty') || lowerHeading.includes('obligation') || lowerHeading.includes('maintenance')) {
+      cat = 'Responsibilities';
+      tags = ['Tenant Obligation', 'Responsibilities'];
+    } else if (lowerHeading.includes('dispute') || lowerHeading.includes('governing') || lowerHeading.includes('jurisdiction') || lowerHeading.includes('entry')) {
+      cat = 'Governance';
+      tags = ['Informational'];
+    }
 
     foundClauses.push({
       id: `custom-cl-${index}`,
@@ -231,15 +255,15 @@ function extractFromCustomText(fileName: string, text: string): LegalDocument {
       title: heading.length > 50 ? heading.slice(0, 50) + '...' : heading,
       pageNumber: Math.ceil(index / 3),
       originalText: rawSnippet,
-      simplifiedText: `This provision outlines terms governing ${heading.toLowerCase()}. Review requirements carefully before proceeding.`,
-      tags: index === 2 ? ['Review Recommended', 'Important'] : (index === 1 ? ['Important'] : ['Informational']),
-      category: index % 2 === 0 ? 'Responsibilities' : 'General',
+      simplifiedText: `This provision defines legal terms governing ${heading.toLowerCase()}. Inspect exact commitments and potential liabilities.`,
+      tags,
+      category: cat,
       explanation: {
-        whatItSays: rawSnippet.slice(0, 150) + '...',
-        whyItMatters: 'Legal commitments in this section govern obligations and compliance.',
-        whoItAffects: 'All contracting parties.',
-        whatToVerify: 'Cross-check dates, financial caps, and termination provisions.',
-        suggestedQuestionForLawyer: `What are the practical liabilities imposed under ${heading}?`
+        whatItSays: rawSnippet.slice(0, 160) + '...',
+        whyItMatters: `Covenants under ${heading} create binding commitments affecting performance, remedies, or dispute procedures.`,
+        whoItAffects: 'Contracting parties involved in this instrument.',
+        whatToVerify: 'Verify statutory alignments, financial ceilings, and required notification windows.',
+        suggestedQuestionForLawyer: `What are the practical liabilities and default consequences imposed under ${heading}?`
       }
     });
     index++;
@@ -250,11 +274,33 @@ function extractFromCustomText(fileName: string, text: string): LegalDocument {
     foundClauses.push(...DEMO_RENTAL_AGREEMENT.clauses);
   }
 
+  // Dynamic review points
+  const dynamicReviewPoints: ReviewPoint[] = [
+    {
+      id: 'custom-rp-1',
+      title: 'Review Notice Periods & Termination Remedies',
+      severity: 'Review Recommended',
+      summary: 'Ensure written notice timelines conform to statutory minimum requirements.',
+      detailedNotice: 'Unilateral termination clauses without balanced cure periods can cause premature default.',
+      actionableStep: 'Highlight termination clauses and request 30-day cure periods.',
+      clauseId: foundClauses[0]?.id
+    },
+    {
+      id: 'custom-rp-2',
+      title: 'Financial & Fee Allocation Verification',
+      severity: 'Important',
+      summary: 'Verify deposit escrow retention rules and penalty fee structures.',
+      detailedNotice: 'Ensure all fees and interest terms are strictly capped by local law.',
+      actionableStep: 'Cross-reference banking schedules and confirm invoice net-terms.',
+      clauseId: foundClauses[1]?.id || foundClauses[0]?.id
+    }
+  ];
+
   return {
     id: `doc-${Date.now()}`,
     name: fileName,
-    type: 'Uploaded Legal Agreement',
-    fileSize: `${Math.round(text.length / 1024)} KB`,
+    type: 'Uploaded Legal Instrument',
+    fileSize: `${Math.max(1, Math.round(text.length / 1024))} KB`,
     uploadDate: new Date().toISOString().split('T')[0],
     lastAnalyzed: 'Just now',
     status: 'Analyzed',
@@ -262,17 +308,17 @@ function extractFromCustomText(fileName: string, text: string): LegalDocument {
     duration: '12 Months (Standard)',
     governingLaw: 'Applicable Local Jurisdiction',
     totalClauses: foundClauses.length,
-    summary: `Analysis of ${fileName}: Identifies primary contracting parties, timeline covenants, financial commitments, and exit protocols. Review marked clauses for potential liabilities.`,
+    summary: `Analysis of ${fileName}: Extracted ${foundClauses.length} distinct contractual provisions covering operational responsibilities, payment covenants, and termination standards.`,
     simpleLanguageSummary: {
-      corePremise: `This document binds the parties to the conditions detailed in ${fileName}.`,
-      financialSummary: 'Covers payment arrangements, escrow security, and penalty fees for missed milestones.',
-      exitConditions: 'Specifies formal written notice requirements before contract termination.',
-      mainRisks: 'Inspect dispute resolution and right of inspection covenants for any unilateral waivers.'
+      corePremise: `This agreement establishes binding commitments between the signatories detailed in ${fileName}.`,
+      financialSummary: 'Covers recurring payments, escrow deposits, and late administrative penalties.',
+      exitConditions: 'Outlines termination requirements, notice windows, and post-termination remedies.',
+      mainRisks: 'Inspect dispute resolution, indemnity waivers, and notice timelines for balance.'
     },
     clauses: foundClauses,
     obligations: DEMO_RENTAL_AGREEMENT.obligations,
     dates: DEMO_RENTAL_AGREEMENT.dates,
-    reviewPoints: DEMO_RENTAL_AGREEMENT.reviewPoints,
+    reviewPoints: dynamicReviewPoints,
     checklist: DEMO_RENTAL_AGREEMENT.checklist,
     lawyerQuestions: DEMO_RENTAL_AGREEMENT.lawyerQuestions,
     rawText: text
