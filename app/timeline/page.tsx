@@ -68,23 +68,70 @@ export default function TimelinePage() {
     URL.revokeObjectURL(url);
   };
 
-  const upcomingActions = [
-    {
-      title: 'Review renewal terms & rental inflation rates',
-      due: '30 days prior to term end',
-      detail: 'Confirm whether Crestview Properties intends to propose an automatic escalation or new 11-month contract.'
-    },
-    {
-      title: 'Prepare written notice if terminating or moving',
-      due: 'By 31 Oct 2026 (Section 7.1 deadline)',
-      detail: 'Send registered digital or physical certified letter to avoid premature vacation penalty.'
-    },
-    {
-      title: 'Schedule pre-moveout inspection & verify deposit return conditions',
-      due: '14 days before handover',
-      detail: 'Request joint walk-through to prevent unexpected deductions under Section 3.2.'
+  const getUpcomingActions = () => {
+    const docType = (currentDocument.type || '').toLowerCase();
+    const docId = currentDocument.id || '';
+
+    if (docId === 'doc-employment-002' || docType.includes('employment')) {
+      return [
+        {
+          title: 'Submit Schedule A Prior Inventions Carve-out',
+          due: 'Before Employment Start Date',
+          detail: 'Protect personal open-source projects and code repositories from retroactive company ownership claims.'
+        },
+        {
+          title: 'Consult CPA regarding Section 83(b) Tax Election',
+          due: 'Within 30 days of equity option grant',
+          detail: 'Determine whether to file an 83(b) election with the IRS for early exercise tax advantages.'
+        },
+        {
+          title: 'Track 1-Year Cliff Equity Vesting Milestone',
+          due: 'At month 12 of service',
+          detail: 'Verify 25% option tranche (6,250 shares) populates accurately in equity portal.'
+        }
+      ];
     }
-  ];
+
+    if (docId === 'doc-service-003' || docType.includes('service') || docType.includes('consulting')) {
+      return [
+        {
+          title: 'Configure staging cloud VPC access and security credentials',
+          due: 'Prior to project sprint kickoff',
+          detail: 'Ensure Provider technicians have restricted IAM access without granting root credentials.'
+        },
+        {
+          title: 'Execute milestone integration tests within 5-day window',
+          due: 'Within 5 business days of deliverable submission',
+          detail: 'Avoid automatic deemed acceptance under Section 3.1 by logging any bug reports in writing.'
+        },
+        {
+          title: 'Conduct final architecture review & sign off final payment tranche',
+          due: 'Milestone 4 delivery',
+          detail: 'Verify database benchmark reports and handover documentation prior to Net-30 remittance.'
+        }
+      ];
+    }
+
+    return [
+      {
+        title: 'Review renewal terms & rental inflation rates',
+        due: '30 days prior to term end',
+        detail: 'Confirm whether landlord intends to propose an automatic escalation or new 11-month contract.'
+      },
+      {
+        title: 'Prepare written notice if terminating or moving',
+        due: 'By 31 Oct 2026 (Section 7.1 deadline)',
+        detail: 'Send registered digital or physical certified letter to avoid premature vacation penalty.'
+      },
+      {
+        title: 'Schedule pre-moveout inspection & verify deposit return conditions',
+        due: '14 days before handover',
+        detail: 'Request joint walk-through to prevent unexpected deductions under Section 3.2.'
+      }
+    ];
+  };
+
+  const upcomingActions = getUpcomingActions();
 
   const filteredDates = currentDocument.dates.filter((dt) => {
     if (filterType === 'upcoming') return dt.isUpcoming;

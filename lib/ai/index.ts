@@ -78,13 +78,87 @@ export async function answerDocumentQuestion(
     // Graceful fallback to client-side legal semantic reasoning
   }
 
-  // Client-side grounded question matching
+  // Client-side grounded question matching based on active document type
   const normalizedQ = question.toLowerCase();
+  const docType = (document.type || '').toLowerCase();
+  const docId = document.id || '';
 
+  // 1. Employment Agreement Q&A Handling
+  if (docId === 'doc-employment-002' || docType.includes('employment')) {
+    if (normalizedQ.includes('salary') || normalizedQ.includes('compensation') || normalizedQ.includes('pay') || normalizedQ.includes('earn')) {
+      const clause = document.clauses.find(c => c.id === 'emp-cl-1') || document.clauses[0];
+      return {
+        answer: `According to Section 1.2, your initial annualized base salary is $165,000.00, payable in semi-monthly installments subject to standard payroll tax withholdings.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+    if (normalizedQ.includes('equity') || normalizedQ.includes('stock') || normalizedQ.includes('option') || normalizedQ.includes('vest') || normalizedQ.includes('cliff')) {
+      const clause = document.clauses.find(c => c.id === 'emp-cl-2') || document.clauses[1];
+      return {
+        answer: `Under Section 2.1 & 2.2, you are granted 25,000 stock options. Vesting occurs over a four (4) year schedule with a 1-year cliff: twenty-five percent (25% or 6,250 shares) vest on the 1st anniversary, and the remaining 75% vest in equal monthly installments over the subsequent 36 months.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+    if (normalizedQ.includes('ip') || normalizedQ.includes('invention') || normalizedQ.includes('code') || normalizedQ.includes('project') || normalizedQ.includes('patent')) {
+      const clause = document.clauses.find(c => c.id === 'emp-cl-3') || document.clauses[2];
+      return {
+        answer: `Under Section 3.1, Employee assigns exclusively to the Company all inventions and software conceived during employment, even using personal equipment if related to the Company’s fields. To protect personal pre-existing projects, Section 3.2 allows disclosing exempt items on Schedule A prior to commencement under California Labor Code Section 2870.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+    if (normalizedQ.includes('solicit') || normalizedQ.includes('coworker') || normalizedQ.includes('client') || normalizedQ.includes('hire') || normalizedQ.includes('recruit')) {
+      const clause = document.clauses.find(c => c.id === 'emp-cl-4') || document.clauses[3];
+      return {
+        answer: `Section 4.1 & 4.2 enforce an 18-month non-solicitation covenant following departure. You may not directly or indirectly recruit company colleagues, consultants, or solicit active clients with whom you had material contact.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+    if (normalizedQ.includes('severance') || normalizedQ.includes('terminat') || normalizedQ.includes('fire') || normalizedQ.includes('notice') || normalizedQ.includes('quit') || normalizedQ.includes('leave')) {
+      const clause = document.clauses.find(c => c.id === 'emp-cl-5') || document.clauses[4];
+      return {
+        answer: `Employment is at-will with thirty (30) days prior written notice by either party under Section 5.1. If the Company terminates you without Cause, Section 5.2 guarantees two (2) months of base salary ($27,500.00) as severance pay upon signing a mutual release.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+  }
+
+  // 2. Master Services Agreement Q&A Handling
+  if (docId === 'doc-service-003' || docType.includes('service') || docType.includes('consulting')) {
+    if (normalizedQ.includes('fee') || normalizedQ.includes('payment') || normalizedQ.includes('cost') || normalizedQ.includes('invoice') || normalizedQ.includes('net-30') || normalizedQ.includes('price')) {
+      const clause = document.clauses.find(c => c.id === 'srv-cl-1') || document.clauses[0];
+      return {
+        answer: `Under Section 2.1 & 2.2, total contract fees are $84,000.00, billed across four milestone tranches of $21,000.00 each upon completion. Payments are subject to Net-30 calendar day terms, with a 1.0% monthly interest charge on invoices unpaid after 45 days.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+    if (normalizedQ.includes('accept') || normalizedQ.includes('test') || normalizedQ.includes('window') || normalizedQ.includes('reject') || normalizedQ.includes('bug')) {
+      const clause = document.clauses.find(c => c.id === 'srv-cl-2') || document.clauses[1];
+      return {
+        answer: `Section 3.1 specifies a deemed acceptance window of only five (5) business days following deliverable submission. In the absence of detailed written objections within this 5-day period, milestone deliverables are irrevocably deemed accepted.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+    if (normalizedQ.includes('liabilit') || normalizedQ.includes('cap') || normalizedQ.includes('damage') || normalizedQ.includes('indemn')) {
+      const clause = document.clauses.find(c => c.id === 'srv-cl-3') || document.clauses[2];
+      return {
+        answer: `Under Section 5.1, each party's aggregate monetary liability is strictly capped at the total fees actually paid to Provider ($84,000.00), excluding breaches of confidentiality. Consequential and indirect damages are mutually waived.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+    if (normalizedQ.includes('terminat') || normalizedQ.includes('cure') || normalizedQ.includes('cancel') || normalizedQ.includes('breach')) {
+      const clause = document.clauses.find(c => c.id === 'srv-cl-4') || document.clauses[3];
+      return {
+        answer: `Under Section 6.1, either party may terminate for material breach with 14 days written notice and opportunity to cure. Under Section 6.2, Client may terminate for convenience with 30 days notice, paying for all work completed up to that date.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
+  }
+
+  // 3. Rental Agreement Q&A Handling
   if (normalizedQ.includes('termination') || normalizedQ.includes('notice') || normalizedQ.includes('leave') || normalizedQ.includes('vacate') || normalizedQ.includes('cancel')) {
     const clause = document.clauses.find(c => c.category === 'Termination') || document.clauses[5] || document.clauses[0];
     return {
-      answer: `According to ${clause.sectionNumber}, either party may terminate the agreement prior to expiration by furnishing thirty (30) calendar days prior written notice. However, please note that Section 7.2 states that if you vacate prior to the completion of the 11-month term without mutual consent, you forfeit 50% of the security deposit ($1,850) as liquidated damages.`,
+      answer: `According to ${clause.sectionNumber}, either party may terminate the agreement prior to expiration by furnishing thirty (30) calendar days prior written notice. However, Section 7.2 states that if you vacate prior to completion of the 11-month term without mutual consent, you forfeit 50% of the security deposit ($1,850) as liquidated damages.`,
       sources: [
         {
           clauseTitle: clause.title,
@@ -96,10 +170,10 @@ export async function answerDocumentQuestion(
     };
   }
 
-  if (normalizedQ.includes('rent') || normalizedQ.includes('late') || normalizedQ.includes('pay') || normalizedQ.includes('fee') || normalizedQ.includes('penalty')) {
+  if (normalizedQ.includes('rent') || normalizedQ.includes('late') || normalizedQ.includes('fee') || normalizedQ.includes('penalty')) {
     const clause = document.clauses.find(c => c.title.toLowerCase().includes('rent') || c.category === 'Financial') || document.clauses[1] || document.clauses[0];
     return {
-      answer: `Monthly rent is $1,850.00, payable in advance on or before the 1st of each month via electronic transfer. A 5-day grace period is granted until the 5th. Payments made after 11:59 PM on the 5th incur a mandatory late administrative charge of $75.00, which subsequently compounds at 1.5% weekly for further delays.`,
+      answer: `Monthly rent is $1,850.00, payable in advance on or before the 1st of each month via electronic transfer. A 5-day grace period is granted until the 5th. Payments made after 11:59 PM on the 5th incur a mandatory late charge of $75.00, compounding at 1.5% weekly for further delays.`,
       sources: [
         {
           clauseTitle: clause.title,
@@ -114,7 +188,7 @@ export async function answerDocumentQuestion(
   if (normalizedQ.includes('deposit') || normalizedQ.includes('security') || normalizedQ.includes('refund') || normalizedQ.includes('return')) {
     const clause = document.clauses.find(c => c.title.toLowerCase().includes('deposit')) || document.clauses[2] || document.clauses[0];
     return {
-      answer: `The security deposit is $3,700.00 (equivalent to two calendar months base rent). Under Section 3.2, the Landlord holds this deposit and is allotted forty-five (45) business days following full vacation to return the balance alongside an itemized list of deductions for structural damage or unpaid charges.`,
+      answer: `The security deposit is $3,700.00 (equivalent to two months base rent). Under Section 3.2, the Landlord holds this deposit and is allotted forty-five (45) business days following full vacation to return the balance alongside an itemized list of deductions.`,
       sources: [
         {
           clauseTitle: clause.title,
@@ -129,7 +203,7 @@ export async function answerDocumentQuestion(
   if (normalizedQ.includes('repair') || normalizedQ.includes('maintenance') || normalizedQ.includes('fix') || normalizedQ.includes('damage') || normalizedQ.includes('clog')) {
     const clause = document.clauses.find(c => c.category === 'Responsibilities' || c.title.toLowerCase().includes('maintenance')) || document.clauses[3] || document.clauses[0];
     return {
-      answer: `Maintenance responsibilities are divided based on cost: under Section 5.1, the Tenant is financially responsible for all minor repairs costing $100.00 or less per incident (such as plumbing clogs, washer gaskets, or lightbulbs). Section 5.2 obligates the Landlord to cover major structural, roofing, and HVAC repairs exceeding $100.00, provided the tenant gives written notice within 48 hours.`,
+      answer: `Maintenance responsibilities are divided based on cost: under Section 5.1, the Tenant is financially responsible for all minor repairs costing $100.00 or less per incident (such as plumbing clogs, washer gaskets, or lightbulbs). Section 5.2 obligates the Landlord to cover major structural, roofing, and HVAC repairs exceeding $100.00.`,
       sources: [
         {
           clauseTitle: clause.title,
@@ -144,7 +218,7 @@ export async function answerDocumentQuestion(
   if (normalizedQ.includes('enter') || normalizedQ.includes('entry') || normalizedQ.includes('inspection') || normalizedQ.includes('visit') || normalizedQ.includes('privacy')) {
     const clause = document.clauses.find(c => c.title.toLowerCase().includes('entry') || c.category === 'Governance') || document.clauses[6] || document.clauses[0];
     return {
-      answer: `Under Section 8.1, the Landlord or authorized technicians may enter the premises during business hours (8:00 AM to 6:00 PM) for safety inspections, periodic appraisal, or repairs after providing at least twelve (12) hours advance digital notice. In emergency situations threatening catastrophic damage, entry is permitted immediately without prior notice.`,
+      answer: `Under Section 8.1, the Landlord or authorized technicians may enter the premises during business hours (8:00 AM to 6:00 PM) for safety inspections or repairs upon providing at least twelve (12) hours advance digital notice. In emergency situations, entry is permitted immediately without prior notice.`,
       sources: [
         {
           clauseTitle: clause.title,

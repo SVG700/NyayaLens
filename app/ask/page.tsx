@@ -28,12 +28,44 @@ function AskDocumentContent() {
   const { currentDocument } = useDocument();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
+  const getSuggestedQuestions = () => {
+    const docType = (currentDocument.type || '').toLowerCase();
+    const docId = currentDocument.id || '';
+
+    if (docId === 'doc-employment-002' || docType.includes('employment')) {
+      return [
+        'What is my annual base compensation?',
+        'How do the 25,000 stock options vest?',
+        'Who owns personal side projects under IP assignment?',
+        'What is the non-solicitation window after leaving?',
+        'What severance is provided if terminated without cause?'
+      ];
+    }
+    if (docId === 'doc-service-003' || docType.includes('service') || docType.includes('consulting')) {
+      return [
+        'What is the total contract fee & payment schedule?',
+        'What is the milestone acceptance testing deadline?',
+        'What is the liability cap for damage claims?',
+        'How can either party terminate for convenience?',
+        'Who is responsible for project deliverables?'
+      ];
+    }
+    return [
+      'What is the termination notice period?',
+      'What happens if rent is paid late?',
+      'When does this agreement expire?',
+      'Who is responsible for repairs?',
+      'Can I sublet or list on Airbnb?'
+    ];
+  };
+
+  const suggestedQuestions = getSuggestedQuestions();
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'msg-welcome',
       sender: 'assistant',
-      text: `Hello! I'm your NyayaLens legal assistant for "${currentDocument.name}". Ask me any question regarding terms, notice windows, rent, security deposits, or repair liabilities. Every answer is grounded directly in the text with section and page citations.`,
+      text: `Hello! I'm your NyayaLens legal assistant for "${currentDocument.name}". Ask me any question regarding terms, notice windows, financial terms, or obligations. Every answer is grounded directly in the text with section and page citations.`,
       timestamp: 'Just now'
     }
   ]);
@@ -43,13 +75,17 @@ function AskDocumentContent() {
   const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const suggestedQuestions = [
-    'What is the termination notice period?',
-    'What happens if rent is paid late?',
-    'When does this agreement expire?',
-    'Who is responsible for repairs?',
-    'Can I sublet or list on Airbnb?'
-  ];
+  // Rehydrate welcome message when active document switches
+  useEffect(() => {
+    setMessages([
+      {
+        id: `msg-welcome-${currentDocument.id}`,
+        sender: 'assistant',
+        text: `Hello! I'm your NyayaLens legal assistant for "${currentDocument.name}". Ask me any question regarding terms, notice windows, financial obligations, or risk areas. Every answer is grounded directly in the text with section and page citations.`,
+        timestamp: 'Just now'
+      }
+    ]);
+  }, [currentDocument.id, currentDocument.name]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

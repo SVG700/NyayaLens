@@ -1,4 +1,4 @@
-import { LegalDocument } from './types';
+import { LegalDocument, DocumentComparisonItem } from './types';
 
 export const DEMO_RENTAL_AGREEMENT: LegalDocument = {
   id: 'doc-rental-001',
@@ -464,45 +464,131 @@ export const DEMO_EMPLOYMENT_AGREEMENT: LegalDocument = {
   },
   rawText: `EMPLOYMENT AGREEMENT
 
-This Agreement is made on February 1, 2026 between Nexus AI Solutions Inc. ("Company") and Jordan Rivera ("Employee").
-1. Position: Staff Software Engineer. Base Salary: $165,000 per annum.
-2. Equity: 25,000 ISOs subject to standard 1-year cliff and 48-month total vesting.
-3. Intellectual Property: Employee assigns all inventions, discoveries, and software made during employment to the Company.
-4. Non-Solicitation: For 18 months post-employment, Employee shall not solicit Company employees or active clients.
-5. Termination: 30 days written notice required by either party.`,
+This Executive Employment Agreement ("Agreement") is entered into as of February 1, 2026, by and between Nexus AI Solutions Inc., a Delaware corporation ("Company"), and Jordan Rivera ("Employee").
+
+1. POSITION AND DUTIES
+1.1 The Company agrees to employ Employee as Staff Software Engineer. Employee shall devote full professional time, attention, and energies to the business of the Company.
+1.2 Employee shall receive an initial annualized base salary of $165,000.00, payable in semi-monthly installments subject to standard payroll tax withholdings.
+
+2. EQUITY INCENTIVE COMPENSATION
+2.1 Subject to approval by the Board of Directors, Employee shall be granted an option to purchase 25,000 shares of Common Stock under the 2024 Equity Incentive Plan.
+2.2 The Options shall vest over a four (4) year period: twenty-five percent (25%) shall vest on the first (1st) anniversary of the Employment Start Date (the "Cliff Date"), and the remaining seventy-five percent (75%) shall vest in equal monthly installments over the subsequent thirty-six (36) months, contingent on continuous service.
+
+3. PROPRIETARY INFORMATION AND INVENTIONS ASSIGNMENT
+3.1 Employee hereby assigns and transfers exclusively to Company all rights, title, and interest in and to all inventions, discoveries, software code, trade secrets, and methodologies conceived, created, or authored during employment, whether during working hours or using personal equipment if related to Company's business fields.
+3.2 Excluded from this assignment are inventions that qualify fully for exemption under California Labor Code Section 2870, provided Employee discloses them on Schedule A attached hereto prior to commencement.
+
+4. RESTRICTIVE COVENANTS AND NON-SOLICITATION
+4.1 During employment and for eighteen (18) months following termination, Employee shall not directly or indirectly recruit, solicit, or induce any employee, consultant, or independent contractor to leave Company employment.
+4.2 During the Restricted Period, Employee shall not solicit or divert active or prospective clients of the Company with whom Employee had material business contact.
+
+5. SEPARATION, NOTICE AND SEVERANCE
+5.1 Employment is at-will. Either party may terminate employment upon thirty (30) calendar days prior written notice.
+5.2 In the event Company terminates Employee's employment without Cause, Company shall pay Employee two (2) months of base salary as severance pay, subject to execution of an effective mutual release of claims.
+
+6. CONFIDENTIALITY AND TRADE SECRETS
+6.1 Employee covenants to safeguard all non-public technical specifications, model weights, training datasets, and proprietary algorithms, and not disclose them to third parties without prior written consent.`,
   clauses: [
     {
       id: 'emp-cl-1',
-      sectionNumber: 'Section 3.1',
-      title: 'Intellectual Property Assignment',
-      pageNumber: 2,
-      originalText: 'Employee hereby assigns to the Company all rights, title, and interest in and to any and all inventions, discoveries, designs, and computer software created, conceived, or authored by Employee during the period of employment, whether during working hours or using personal equipment if related to the Company’s prospective fields.',
-      simplifiedText: 'The company claims ownership of any software or invention you make while employed, even on your own time if it touches anything related to their business.',
-      tags: ['Potential Concern', 'Review Recommended'],
-      category: 'Liability',
+      sectionNumber: 'Section 1.2',
+      title: 'Base Compensation & Payment Terms',
+      pageNumber: 1,
+      originalText: 'Employee shall receive an initial annualized base salary of $165,000.00, payable in semi-monthly installments subject to standard payroll tax withholdings.',
+      simplifiedText: 'You will earn a base salary of $165,000 per year, paid twice a month with standard tax deductions.',
+      tags: ['Important', 'Financial'],
+      category: 'Financial',
       explanation: {
-        whatItSays: 'Broad assignment of intellectual property including side projects that touch the company’s broad domain.',
-        whyItMatters: 'Could inadvertently transfer ownership of your personal software projects, open-source repositories, or future startups.',
-        whoItAffects: 'Employee side pursuits and personal IP.',
-        whatToVerify: 'Request an exhibit listing excluded pre-existing inventions and clarify carve-outs under California Labor Code Section 2870.',
-        suggestedQuestionForLawyer: 'Does this IP assignment comply with statutory labor carve-outs for inventions developed entirely on personal time without company resources?'
+        whatItSays: 'Fixes annual base salary at $165,000 with semi-monthly distribution.',
+        whyItMatters: 'Establishes guaranteed base pay regardless of company performance or milestone achievements.',
+        whoItAffects: 'Employee compensation.',
+        whatToVerify: 'Verify performance review cycles and annual bonus eligibility criteria.',
+        suggestedQuestionForLawyer: 'Is there a guaranteed annual cost-of-living or performance adjustment schedule incorporated into this base salary?'
       }
     },
     {
       id: 'emp-cl-2',
-      sectionNumber: 'Section 4.2',
+      sectionNumber: 'Section 2.1 & 2.2',
+      title: 'Equity Grant & 1-Year Cliff Vesting',
+      pageNumber: 1,
+      originalText: 'Employee shall be granted an option to purchase 25,000 shares of Common Stock... twenty-five percent (25%) shall vest on the first (1st) anniversary of the Employment Start Date (the "Cliff Date"), and the remaining seventy-five percent (75%) shall vest in equal monthly installments over the subsequent thirty-six (36) months.',
+      simplifiedText: 'You get 25,000 stock options. You must stay 1 full year to earn the first 25% (6,250 shares). The remaining 75% vests monthly over the next 3 years.',
+      tags: ['Important', 'Financial'],
+      category: 'Financial',
+      explanation: {
+        whatItSays: 'Standard 4-year vesting schedule with a 1-year cliff before any equity vests.',
+        whyItMatters: 'If you leave or are terminated at month 11, you leave with 0 vested shares.',
+        whoItAffects: 'Employee long-term incentive upside.',
+        whatToVerify: 'Check option strike price, post-termination exercise window (standard 90 days vs extended), and acceleration on change-of-control.',
+        suggestedQuestionForLawyer: 'Does this grant provide single or double-trigger vesting acceleration if the company is acquired?'
+      }
+    },
+    {
+      id: 'emp-cl-3',
+      sectionNumber: 'Section 3.1 & 3.2',
+      title: 'Broad Intellectual Property Assignment',
+      pageNumber: 2,
+      originalText: 'Employee hereby assigns and transfers exclusively to Company all rights, title, and interest in and to all inventions, discoveries, software code, trade secrets, and methodologies conceived, created, or authored during employment, whether during working hours or using personal equipment if related to Company’s business fields.',
+      simplifiedText: 'The company claims full ownership of any code or invention you build during your employment, even on your personal computer if it relates to their industry.',
+      tags: ['Potential Concern', 'Review Recommended'],
+      category: 'Liability',
+      explanation: {
+        whatItSays: 'Broad IP assignment claiming side projects and software conceived on personal time if vaguely related to the company’s roadmap.',
+        whyItMatters: 'Could inadvertently transfer ownership of your personal open-source projects or side startups.',
+        whoItAffects: 'Employee personal intellectual property.',
+        whatToVerify: 'Demand to attach Schedule A explicitly listing all pre-existing personal repositories and projects.',
+        suggestedQuestionForLawyer: 'Does this IP assignment comply with statutory labor carve-outs (e.g. CA Labor Code 2870) for inventions developed on personal time without company hardware?'
+      }
+    },
+    {
+      id: 'emp-cl-4',
+      sectionNumber: 'Section 4.1 & 4.2',
       title: '18-Month Non-Solicitation Covenant',
-      pageNumber: 3,
-      originalText: 'For an eighteen (18) month period subsequent to termination, Employee shall not directly or indirectly induce or solicit any customer, contractor, or employee to cease association with Company.',
-      simplifiedText: 'For 1.5 years after leaving, you cannot ask former coworkers or clients to join or work with you elsewhere.',
-      tags: ['Review Recommended'],
+      pageNumber: 2,
+      originalText: 'During employment and for eighteen (18) months following termination, Employee shall not directly or indirectly recruit, solicit, or induce any employee, consultant, or independent contractor to leave Company employment... nor solicit or divert active or prospective clients.',
+      simplifiedText: 'For 1.5 years after leaving, you cannot ask former coworkers to join you at another company or pitch company clients.',
+      tags: ['Review Recommended', 'Important'],
       category: 'Termination',
       explanation: {
-        whatItSays: 'Restricts contacting or hiring former colleagues or pitching former company customers for 18 months.',
-        whyItMatters: '18 months is a long window that can impede your ability to build teams at a subsequent startup or employer.',
-        whoItAffects: 'Employee future career and recruiting network.',
-        whatToVerify: 'Verify if customer non-solicitation is enforceable in your state jurisdiction.',
-        suggestedQuestionForLawyer: 'Is an 18-month non-solicitation clause for customers and team members enforceable under local employment laws?'
+        whatItSays: 'Restricts recruiting coworkers or contacting clients for 18 months post-departure.',
+        whyItMatters: '18 months is a long window that can limit your ability to recruit teammates for a future startup or venture.',
+        whoItAffects: 'Employee future career and hiring network.',
+        whatToVerify: 'Check if non-solicitation covenants are enforceable in your state jurisdiction.',
+        suggestedQuestionForLawyer: 'Is an 18-month non-solicitation restriction for employees and clients enforceable under applicable state employment laws?'
+      }
+    },
+    {
+      id: 'emp-cl-5',
+      sectionNumber: 'Section 5.1 & 5.2',
+      title: 'Separation Notice & 2-Month Severance',
+      pageNumber: 3,
+      originalText: 'Employment is at-will. Either party may terminate employment upon thirty (30) calendar days prior written notice... In the event Company terminates Employee’s employment without Cause, Company shall pay Employee two (2) months of base salary as severance pay.',
+      simplifiedText: 'Either party can end employment with 30 days notice. If the company fires you without cause, you receive 2 months of severance pay ($27,500).',
+      tags: ['Important'],
+      category: 'Termination',
+      explanation: {
+        whatItSays: 'Provides 30-day notice and 2 months of guaranteed severance if fired without cause.',
+        whyItMatters: 'Provides a safety net during transition, though you must sign a release of claims to collect it.',
+        whoItAffects: 'Both Employee and Employer.',
+        whatToVerify: 'Check the exact contractual definition of "Cause" to ensure it cannot be invoked arbitrarily.',
+        suggestedQuestionForLawyer: 'Is the definition of "Cause" narrowly defined to require written warning and a 30-day cure period before severance can be denied?'
+      }
+    },
+    {
+      id: 'emp-cl-6',
+      sectionNumber: 'Section 6.1',
+      title: 'Confidentiality & Trade Secret Protections',
+      pageNumber: 3,
+      originalText: 'Employee covenants to safeguard all non-public technical specifications, model weights, training datasets, and proprietary algorithms, and not disclose them to third parties without prior written consent.',
+      simplifiedText: 'You must maintain strict secrecy regarding company training datasets, AI model weights, and proprietary code indefinitely.',
+      tags: ['Informational'],
+      category: 'Responsibilities',
+      explanation: {
+        whatItSays: 'Indefinite non-disclosure of technical architecture and proprietary data.',
+        whyItMatters: 'Standard in deep tech, but ensure it does not prohibit using general engineering knowledge in future roles.',
+        whoItAffects: 'Employee technical communication.',
+        whatToVerify: 'Confirm that general skills and residual knowledge are excluded from confidentiality restrictions.',
+        suggestedQuestionForLawyer: 'Does this confidentiality clause include a standard "residuals" clause protecting general know-how acquired during employment?'
       }
     }
   ],
@@ -510,17 +596,33 @@ This Agreement is made on February 1, 2026 between Nexus AI Solutions Inc. ("Com
     {
       id: 'emp-ob-1',
       party: 'Employee',
-      description: 'Devote full professional time and loyalty; not engage in competing consulting.',
-      originalSection: 'Section 1.3',
-      consequence: 'Grounds for immediate termination for cause.',
+      description: 'Devote full professional working time and loyalty; refrain from competing side consulting.',
+      originalSection: 'Section 1.1',
+      consequence: 'Grounds for immediate termination for Cause.',
       importance: 'Standard'
     },
     {
       id: 'emp-ob-2',
+      party: 'Employee',
+      description: 'Refrain from soliciting employees or active company clients for 18 months post-employment.',
+      originalSection: 'Section 4.1',
+      consequence: 'Injunction and monetary damages for lost revenue.',
+      importance: 'Watch'
+    },
+    {
+      id: 'emp-ob-3',
       party: 'Employer',
-      description: 'Provide 2 months base salary severance in the event of termination without cause.',
+      description: 'Pay base annual compensation of $165,000 semi-monthly plus standard health benefit coverage.',
+      originalSection: 'Section 1.2',
+      consequence: 'Wage claim and statutory penalties for unpaid compensation.',
+      importance: 'Critical'
+    },
+    {
+      id: 'emp-ob-4',
+      party: 'Employer',
+      description: 'Provide two (2) months base salary severance upon termination without Cause.',
       originalSection: 'Section 5.2',
-      consequence: 'Contractual damages if withheld.',
+      consequence: 'Breach of contract damages.',
       importance: 'Critical'
     }
   ],
@@ -529,21 +631,34 @@ This Agreement is made on February 1, 2026 between Nexus AI Solutions Inc. ("Com
       id: 'emp-dt-1',
       date: '2026-03-01',
       formattedDate: '01 Mar 2026',
-      event: 'Official Start Date',
-      explanation: 'First day of employment and payroll enrollment.',
-      actionRequired: 'Submit tax forms and I-9 verification documents.',
+      event: 'Official Start Date & Payroll Inception',
+      explanation: 'First day of employment and benefits enrollment window.',
+      actionRequired: 'Submit Form I-9 verification and execute Schedule A prior inventions list.',
       isUpcoming: false,
-      daysRemaining: 0
+      daysRemaining: 0,
+      sourceSection: 'Section 1.1'
     },
     {
       id: 'emp-dt-2',
+      date: '2026-03-31',
+      formattedDate: '31 Mar 2026',
+      event: 'Section 83(b) Tax Election Deadline',
+      explanation: 'Statutory 30-day window following equity award grant.',
+      actionRequired: 'Consult CPA to determine whether to file an 83(b) election with the IRS.',
+      isUpcoming: true,
+      daysRemaining: 11,
+      sourceSection: 'Section 2.1'
+    },
+    {
+      id: 'emp-dt-3',
       date: '2027-03-01',
       formattedDate: '01 Mar 2027',
-      event: 'Equity 1-Year Cliff Vesting',
-      explanation: '25% of the 25,000 stock options vest automatically.',
-      actionRequired: 'Review option strike price and consult financial advisor regarding 83(b) election.',
+      event: 'Equity 1-Year Cliff Vesting Milestone',
+      explanation: 'First 25% of the 25,000 stock options (6,250 shares) vest fully.',
+      actionRequired: 'Verify cap table portal balance and check ongoing monthly vesting schedule.',
       isUpcoming: true,
-      daysRemaining: 345
+      daysRemaining: 345,
+      sourceSection: 'Section 2.2'
     }
   ],
   reviewPoints: [
@@ -551,10 +666,19 @@ This Agreement is made on February 1, 2026 between Nexus AI Solutions Inc. ("Com
       id: 'emp-rp-1',
       title: 'Broad IP Assignment Encroachment',
       severity: 'Potential Concern',
-      summary: 'Company claims inventions made on personal time if vaguely related to company future roadmap.',
-      detailedNotice: 'Always ensure an explicit "Schedule of Prior Inventions" is attached to preserve your existing code repositories.',
+      summary: 'Section 3.1 claims inventions made on personal time if related to prospective company roadmap.',
+      detailedNotice: 'Always ensure an explicit "Schedule of Prior Inventions" is attached to preserve your existing GitHub repositories.',
       actionableStep: 'Attach Schedule A listing your personal open source libraries and pre-existing domains.',
-      clauseId: 'emp-cl-1'
+      clauseId: 'emp-cl-3'
+    },
+    {
+      id: 'emp-rp-2',
+      title: 'Prolonged 18-Month Non-Solicitation Window',
+      severity: 'Review Recommended',
+      summary: 'Section 4.1 restricts contacting former colleagues or clients for 18 months.',
+      detailedNotice: '18 months exceeds standard 12-month tech industry covenants and can impede future recruiting.',
+      actionableStep: 'Propose reducing non-solicitation duration from 18 months to 12 months.',
+      clauseId: 'emp-cl-4'
     }
   ],
   checklist: [
@@ -563,7 +687,8 @@ This Agreement is made on February 1, 2026 between Nexus AI Solutions Inc. ("Com
       text: 'Submit Schedule of Prior Inventions before signing to protect side projects',
       category: 'Pre-Signing',
       completed: false,
-      deadline: 'Before contract signature'
+      deadline: 'Before contract signature',
+      note: 'Clause 3.2 allows statutory carve-outs'
     },
     {
       id: 'emp-chk-2',
@@ -571,16 +696,46 @@ This Agreement is made on February 1, 2026 between Nexus AI Solutions Inc. ("Com
       category: 'Immediate',
       completed: true,
       deadline: 'First week of onboarding'
+    },
+    {
+      id: 'emp-chk-3',
+      text: 'Calendar 83(b) tax election cutoff (30 days from stock option grant)',
+      category: 'Immediate',
+      completed: false,
+      deadline: '2026-03-31'
+    },
+    {
+      id: 'emp-chk-4',
+      text: 'Negotiate reduction of 18-month non-solicitation down to 12 months',
+      category: 'Pre-Signing',
+      completed: false,
+      deadline: 'Prior to contract execution'
     }
   ],
   lawyerQuestions: [
     {
       id: 'emp-lq-1',
       number: 1,
-      question: 'Does the IP assignment clause adequately protect my existing personal open-source projects?',
-      rationale: 'Protecting personal GitHub repositories from company claims.',
-      relatedClause: 'Section 3.1',
+      question: 'Does the IP assignment clause adequately protect my pre-existing personal open-source libraries?',
+      rationale: 'Protecting personal GitHub repositories from retroactive company ownership claims.',
+      relatedClause: 'Section 3.1 (Inventions Assignment)',
       category: 'Intellectual Property'
+    },
+    {
+      id: 'emp-lq-2',
+      number: 2,
+      question: 'Is the 18-month employee and customer non-solicitation restriction legally enforceable in California/Delaware?',
+      rationale: 'Clarifying whether post-employment restrictions could hinder future startup formation.',
+      relatedClause: 'Section 4.1 (Non-Solicitation)',
+      category: 'Post-Employment'
+    },
+    {
+      id: 'emp-lq-3',
+      number: 3,
+      question: 'Does the equity grant include double-trigger acceleration upon a change of control or acquisition?',
+      rationale: 'Protecting unvested options if the startup is acquired before the 4-year vesting schedule completes.',
+      relatedClause: 'Section 2.2 (Equity Vesting)',
+      category: 'Equity & Severance'
     }
   ]
 };
@@ -605,26 +760,95 @@ export const DEMO_SERVICE_CONTRACT: LegalDocument = {
     mainRisks: 'Acceptance testing clause has a deemed acceptance window of only 5 business days. Indemnification lacks a clear mutual aggregate cap.'
   },
   rawText: `MASTER SERVICES AGREEMENT
-Parties: Apex Retail Corp ("Client") and Kestrel Cloud Solutions ("Provider").
-Total Fee: $84,000 payable across 4 milestones.
-Acceptance: Client has 5 business days to reject deliverables, otherwise deemed accepted.
-Liability: Limited to total fees paid under the applicable Statement of Work.`,
+
+This Master Services Agreement ("Agreement") is executed as of February 10, 2026, by and between Apex Retail Corp ("Client") and Kestrel Cloud Solutions LLP ("Provider").
+
+1. SERVICES AND STATEMENTS OF WORK
+1.1 Provider shall perform enterprise cloud migration, database re-platforming, and infrastructure automation services as detailed in Statement of Work #1 ("SOW").
+
+2. COMPENSATION AND BILLING
+2.1 Total contract fees under SOW #1 shall be $84,000.00, invoiced in four equal milestone installments of $21,000.00 each upon milestone completion.
+2.2 Client covenants to remit payment within thirty (30) calendar days of invoice receipt ("Net-30"). Invoices unpaid after 45 days incur 1.0% monthly interest.
+
+3. ACCEPTANCE TESTING CRITERIA
+3.1 Client shall have five (5) business days following receipt of milestone deliverables to test and submit written objections. In the absence of written objection within such window, deliverables shall be deemed irrevocably accepted.
+
+4. INDEPENDENT CONTRACTOR RELATIONSHIP
+4.1 Provider is an independent contractor. Neither party shall act as an agent, partner, or joint venturer of the other.
+
+5. LIMITATION OF LIABILITY
+5.1 Except for breaches of confidentiality, each party's aggregate monetary liability under this Agreement shall not exceed the total fees actually paid to Provider hereunder ($84,000.00).
+
+6. TERMINATION AND NOTICE
+6.1 Either party may terminate this Agreement for material breach upon fourteen (14) days prior written notice, provided the breaching party fails to cure within said window.
+6.2 Client may terminate for convenience upon thirty (30) days prior written notice, subject to paying for all work completed.`,
   clauses: [
     {
       id: 'srv-cl-1',
-      sectionNumber: 'Section 4.3',
+      sectionNumber: 'Section 2.1 & 2.2',
+      title: 'Milestone Fees & Net-30 Payment Terms',
+      pageNumber: 1,
+      originalText: 'Total contract fees under SOW #1 shall be $84,000.00, invoiced in four equal milestone installments of $21,000.00 each... Client covenants to remit payment within thirty (30) calendar days of invoice receipt ("Net-30").',
+      simplifiedText: 'Total fee is $84,000, billed in 4 chunks of $21,000 upon milestone sign-off. Payments are due within 30 days.',
+      tags: ['Important', 'Financial'],
+      category: 'Financial',
+      explanation: {
+        whatItSays: 'Sets four $21,000 milestone payments on standard Net-30 payment terms.',
+        whyItMatters: 'Guarantees milestone gating so payment is tied directly to verified delivery.',
+        whoItAffects: 'Both Client and Provider finance teams.',
+        whatToVerify: 'Verify exact delivery definitions for each of the four technical milestones.',
+        suggestedQuestionForLawyer: 'Are acceptance criteria sufficiently objective to prevent disputed milestone billing?'
+      }
+    },
+    {
+      id: 'srv-cl-2',
+      sectionNumber: 'Section 3.1',
       title: 'Deemed Acceptance Window (5 Days)',
       pageNumber: 2,
       originalText: 'Client shall have five (5) business days following receipt of milestone deliverables to test and submit written objections. In the absence of written objection within such window, deliverables shall be deemed irrevocably accepted.',
-      simplifiedText: 'You only have 5 days to test and reject any technical milestone; otherwise, it is automatically approved and payment becomes due.',
-      tags: ['Important', 'Review Recommended'],
+      simplifiedText: 'You only have 5 business days to test and submit written objections to any milestone; otherwise, it is automatically approved.',
+      tags: ['Potential Concern', 'Review Recommended'],
       category: 'Responsibilities',
       explanation: {
-        whatItSays: 'Deliverables are deemed accepted if client does not send detailed written objections within 5 business days.',
-        whyItMatters: 'Technical QA for cloud migration often requires 10 to 14 days of stress testing and security review.',
-        whoItAffects: 'Client engineering and verification teams.',
-        whatToVerify: 'Verify whether 5 days is sufficient for your internal team to run functional validation.',
+        whatItSays: 'Automatic approval occurs after 5 business days if written bugs are not submitted.',
+        whyItMatters: '5 days is very tight for end-to-end integration and load testing of cloud architecture.',
+        whoItAffects: 'Client engineering and QA teams.',
+        whatToVerify: 'Request expanding acceptance testing window to at least 10–14 business days.',
         suggestedQuestionForLawyer: 'Can the deemed acceptance period be expanded from 5 business days to 14 business days to allow thorough end-to-end integration testing?'
+      }
+    },
+    {
+      id: 'srv-cl-3',
+      sectionNumber: 'Section 5.1',
+      title: 'Aggregate Liability Cap ($84,000)',
+      pageNumber: 2,
+      originalText: 'Except for breaches of confidentiality, each party\'s aggregate monetary liability under this Agreement shall not exceed the total fees actually paid to Provider hereunder ($84,000.00).',
+      simplifiedText: 'Neither party can be sued for more than the contract total ($84,000), even if an outage or service failure causes larger business losses.',
+      tags: ['Important'],
+      category: 'Liability',
+      explanation: {
+        whatItSays: 'Limits total damage claims to fees paid ($84,000) and excludes indirect consequential losses.',
+        whyItMatters: 'Protects both parties from unlimited liability, but caps recovery if a major data incident occurs.',
+        whoItAffects: 'Both parties.',
+        whatToVerify: 'Verify whether data breach liabilities should be carved out into a higher super-cap.',
+        suggestedQuestionForLawyer: 'Should gross negligence or cloud security breaches be excluded from the $84,000 aggregate liability limitation?'
+      }
+    },
+    {
+      id: 'srv-cl-4',
+      sectionNumber: 'Section 6.1 & 6.2',
+      title: 'Termination for Cause & Convenience',
+      pageNumber: 3,
+      originalText: 'Either party may terminate this Agreement for material breach upon fourteen (14) days prior written notice, provided the breaching party fails to cure... Client may terminate for convenience upon thirty (30) days prior written notice.',
+      simplifiedText: 'Either side can cancel for breach after giving 14 days to fix it. The client can cancel anytime with 30 days notice by paying for work done.',
+      tags: ['Important'],
+      category: 'Termination',
+      explanation: {
+        whatItSays: '14-day cure window for breach, and 30-day convenience termination for client.',
+        whyItMatters: 'Fair termination exit mechanism that avoids prolonged lock-in.',
+        whoItAffects: 'Both parties.',
+        whatToVerify: 'Clarify what happens to work-in-progress deliverables upon convenience termination.',
+        suggestedQuestionForLawyer: 'Does the contract guarantee full transfer of all work-in-progress code if terminated early for convenience?'
       }
     }
   ],
@@ -632,47 +856,104 @@ Liability: Limited to total fees paid under the applicable Statement of Work.`,
     {
       id: 'srv-ob-1',
       party: 'Provider',
-      description: 'Deliver weekly sprint progress reports and migration benchmarks.',
-      originalSection: 'Section 2.2',
-      importance: 'Standard'
+      description: 'Execute database migration and deliver architecture automation documentation per SOW.',
+      originalSection: 'Section 1.1',
+      consequence: 'Client withholding of milestone payment tranche.',
+      importance: 'Critical'
     },
     {
       id: 'srv-ob-2',
       party: 'Client',
-      description: 'Remit payment within Net-30 calendar days upon signed acceptance of each milestone.',
-      originalSection: 'Section 3.4',
-      importance: 'Critical'
+      description: 'Remit milestone payment within Net-30 calendar days upon signed acceptance.',
+      originalSection: 'Section 2.2',
+      consequence: '1.0% monthly interest on unpaid balances.',
+      importance: 'Standard'
+    },
+    {
+      id: 'srv-ob-3',
+      party: 'Client',
+      description: 'Submit written rejection notices within 5 business days of deliverable receipt.',
+      originalSection: 'Section 3.1',
+      consequence: 'Deemed irrevocable acceptance and payment obligation.',
+      importance: 'Watch'
     }
   ],
   dates: [
     {
       id: 'srv-dt-1',
+      date: '2026-02-15',
+      formattedDate: '15 Feb 2026',
+      event: 'Contract Effective Date & SOW Inception',
+      explanation: 'Official kickoff of cloud migration sprints.',
+      actionRequired: 'Provide IAM credentials and access to staging VPC.',
+      isUpcoming: false,
+      daysRemaining: 0,
+      sourceSection: 'Section 1.1'
+    },
+    {
+      id: 'srv-dt-2',
       date: '2026-04-15',
       formattedDate: '15 Apr 2026',
       event: 'Milestone 2 Delivery: Database Re-platforming',
       explanation: 'Cutover of relational database to managed cloud instance.',
       actionRequired: 'Execute test scripts within acceptance window.',
       isUpcoming: true,
-      daysRemaining: 26
+      daysRemaining: 26,
+      sourceSection: 'Section 3.1'
+    },
+    {
+      id: 'srv-dt-3',
+      date: '2026-08-15',
+      formattedDate: '15 Aug 2026',
+      event: 'Final Milestone Delivery & Knowledge Transfer',
+      explanation: 'Handover of infrastructure automation templates and final sign-off.',
+      actionRequired: 'Complete acceptance testing and remit final milestone tranche.',
+      isUpcoming: true,
+      daysRemaining: 148,
+      sourceSection: 'Section 2.1'
     }
   ],
   reviewPoints: [
     {
       id: 'srv-rp-1',
-      title: '5-Day Deemed Acceptance Risk',
-      severity: 'Review Recommended',
+      title: '5-Day Deemed Acceptance Window Risk',
+      severity: 'Potential Concern',
       summary: 'Automatic acceptance after 5 business days can trigger premature payment obligations.',
       detailedNotice: 'Complex cloud deployments rarely complete load and security verification within 5 working days.',
-      actionableStep: 'Negotiate 10-15 business days for milestone QA.',
-      clauseId: 'srv-cl-1'
+      actionableStep: 'Negotiate expanding the testing window to 10–14 business days.',
+      clauseId: 'srv-cl-2'
+    },
+    {
+      id: 'srv-rp-2',
+      title: 'Liability Cap Scope for Data Breaches',
+      severity: 'Important',
+      summary: 'Section 5.1 caps liability at fees paid ($84,000) for all claims except confidentiality.',
+      detailedNotice: 'Consider adding a separate higher super-cap for data protection liabilities.',
+      actionableStep: 'Propose a $250,000 super-cap for data privacy breaches.',
+      clauseId: 'srv-cl-3'
     }
   ],
   checklist: [
     {
       id: 'srv-chk-1',
-      text: 'Negotiate extension of 5-day acceptance testing window to 10 days',
+      text: 'Negotiate extension of 5-day acceptance testing window to 10 or 14 business days',
       category: 'Pre-Signing',
-      completed: false
+      completed: false,
+      deadline: 'Before contract signature'
+    },
+    {
+      id: 'srv-chk-2',
+      text: 'Define specific quantitative acceptance criteria for each of the 4 milestone deliveries',
+      category: 'Pre-Signing',
+      completed: true,
+      deadline: 'Prior to kickoff'
+    },
+    {
+      id: 'srv-chk-3',
+      text: 'Verify AWS/GCP staging VPC access and security groups for Provider technicians',
+      category: 'Immediate',
+      completed: false,
+      deadline: '2026-02-20'
     }
   ],
   lawyerQuestions: [
@@ -680,9 +961,17 @@ Liability: Limited to total fees paid under the applicable Statement of Work.`,
       id: 'srv-lq-1',
       number: 1,
       question: 'Is the mutual liability limitation sufficiently protective against secondary data breach claims?',
-      rationale: 'Clarifying whether cloud security breaches fall inside or outside the fee liability cap.',
-      relatedClause: 'Section 7.1',
-      category: 'Liability'
+      rationale: 'Clarifying whether cloud security breaches fall inside or outside the $84,000 fee liability cap.',
+      relatedClause: 'Section 5.1 (Limitation of Liability)',
+      category: 'Liability & Indemnity'
+    },
+    {
+      id: 'srv-lq-2',
+      number: 2,
+      question: 'Can we amend the 5-day deemed acceptance period to require explicit written sign-off before invoice approval?',
+      rationale: 'Preventing premature deemed acceptance of partially functional software.',
+      relatedClause: 'Section 3.1 (Acceptance Testing)',
+      category: 'Acceptance & Gating'
     }
   ]
 };
@@ -693,83 +982,240 @@ export const ALL_DEMO_DOCUMENTS: LegalDocument[] = [
   DEMO_SERVICE_CONTRACT
 ];
 
-export const COMPARISON_DEMO_DATA = {
+export interface ComparisonPreset {
+  id: string;
+  label: string;
+  category: string;
   docA: {
-    name: 'Standard Residential Lease (Draft A)',
-    type: '11-Month Lease',
-    duration: '11 Months',
-    parties: 'Tenant Parker / Crestview LLC'
-  },
+    name: string;
+    type: string;
+    duration: string;
+    parties: string;
+  };
   docB: {
-    name: 'Revised Landlord Counter-Offer (Draft B)',
-    type: '12-Month Lease',
-    duration: '12 Months',
-    parties: 'Tenant Parker / Crestview LLC'
+    name: string;
+    type: string;
+    duration: string;
+    parties: string;
+  };
+  comparisonItems: DocumentComparisonItem[];
+  summaryAI: string;
+}
+
+export const COMPARISON_PRESETS: Record<string, ComparisonPreset> = {
+  lease: {
+    id: 'lease',
+    label: 'Apartment Lease: Standard Draft A vs Counter Offer B',
+    category: 'Residential Lease',
+    docA: {
+      name: 'Standard Residential Lease (Draft A)',
+      type: '11-Month Lease',
+      duration: '11 Months',
+      parties: 'Tenant Parker / Crestview LLC'
+    },
+    docB: {
+      name: 'Revised Landlord Counter-Offer (Draft B)',
+      type: '12-Month Lease',
+      duration: '12 Months',
+      parties: 'Tenant Parker / Crestview LLC'
+    },
+    comparisonItems: [
+      {
+        category: 'Termination',
+        field: 'Early Termination Notice Period',
+        docAValue: '30 calendar days written notice',
+        docBValue: '60 calendar days written notice',
+        aiExplanation: 'Draft B doubles the notice commitment, making it much harder to exit quickly if life circumstances change.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Tenant'
+      },
+      {
+        category: 'Financial',
+        field: 'Security Deposit Amount',
+        docAValue: '$3,700 (2 months base rent)',
+        docBValue: '$1,850 (1 month base rent)',
+        aiExplanation: 'Draft B requires half the upfront capital for the deposit, which is favorable for tenant cash flow.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Tenant (Favorable)'
+      },
+      {
+        category: 'Financial',
+        field: 'Early Exit Penalty',
+        docAValue: '50% of deposit forfeiture ($1,850)',
+        docBValue: 'Full forfeiture of deposit + 1 month rent ($3,700 total)',
+        aiExplanation: 'Draft B imposes an aggressive double penalty for breaking the lease prior to term end.',
+        differenceType: 'warning',
+        affectedParty: 'Tenant (High Risk)'
+      },
+      {
+        category: 'Responsibilities',
+        field: 'Maintenance Deductible',
+        docAValue: '$100 or less per incident paid by Tenant',
+        docBValue: '$50 or less per incident paid by Tenant',
+        aiExplanation: 'Draft B reduces tenant minor repair burden from $100 down to $50.',
+        differenceType: 'minor_difference',
+        affectedParty: 'Tenant'
+      },
+      {
+        category: 'Governance',
+        field: 'Landlord Entry Notice',
+        docAValue: '12 hours advance digital notice',
+        docBValue: '24 hours advance written notice',
+        aiExplanation: 'Draft B offers better privacy protection aligning with standard 24-hour statutory courtesy.',
+        differenceType: 'minor_difference',
+        affectedParty: 'Tenant (Favorable)'
+      },
+      {
+        category: 'Termination',
+        field: 'Lease Renewal Mechanism',
+        docAValue: 'Automatic expiration; explicit written agreement needed',
+        docBValue: 'Automatic month-to-month rollover with 5% annual escalation',
+        aiExplanation: 'Draft B automatically extends the tenancy into a month-to-month arrangement if neither party issues notice.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Both Parties'
+      },
+      {
+        category: 'Liability',
+        field: 'Dispute Resolution Method',
+        docAValue: 'Mandatory conciliation prior to court',
+        docBValue: 'Binding single-arbitrator commercial arbitration',
+        aiExplanation: 'Draft B forces disputes into binding private arbitration where legal fees may be higher.',
+        differenceType: 'warning',
+        affectedParty: 'Both Parties'
+      }
+    ],
+    summaryAI: 'Comparing Draft A against Draft B reveals significant trade-offs: Draft B requires only 1 month security deposit upfront (saving $1,850 initially) and offers 24-hour entry notice. However, Draft B significantly increases risk upon exit by doubling the notice window to 60 days and demanding a steep double penalty for early termination. If you value flexibility, Draft A is safer; if you prioritize lower upfront cash, Draft B is preferable provided you negotiate the early exit penalty.'
   },
-  comparisonItems: [
-    {
-      category: 'Termination',
-      field: 'Early Termination Notice Period',
-      docAValue: '30 calendar days written notice',
-      docBValue: '60 calendar days written notice',
-      aiExplanation: 'Draft B doubles the notice commitment, making it much harder to exit quickly if life circumstances change.',
-      differenceType: 'significant_difference' as const,
-      affectedParty: 'Tenant'
+  employment: {
+    id: 'employment',
+    label: 'Employment Agreement: Initial Offer vs Executive Counter',
+    category: 'Employment & Labor',
+    docA: {
+      name: 'Standard Tech Employment Offer (Draft A)',
+      type: 'At-Will Employment Agreement',
+      duration: 'Indefinite / At-Will',
+      parties: 'Alex Parker / NexaSoft AI Corp'
     },
-    {
-      category: 'Financial',
-      field: 'Security Deposit Amount',
-      docAValue: '$3,700 (2 months base rent)',
-      docBValue: '$1,850 (1 month base rent)',
-      aiExplanation: 'Draft B requires half the upfront capital for the deposit, which is favorable for tenant cash flow.',
-      differenceType: 'significant_difference' as const,
-      affectedParty: 'Tenant (Favorable)'
+    docB: {
+      name: 'Executive Counter-Draft (Draft B)',
+      type: 'Senior Staff Employment Agreement',
+      duration: 'Indefinite / At-Will',
+      parties: 'Alex Parker / NexaSoft AI Corp'
     },
-    {
-      category: 'Financial',
-      field: 'Early Exit Penalty',
-      docAValue: '50% of deposit forfeiture ($1,850)',
-      docBValue: 'Full forfeiture of deposit + 1 month rent ($3,700 total)',
-      aiExplanation: 'Draft B imposes an aggressive double penalty for breaking the lease prior to term end.',
-      differenceType: 'warning' as const,
-      affectedParty: 'Tenant (High Risk)'
+    comparisonItems: [
+      {
+        category: 'Financial',
+        field: 'Base Salary & Signing Bonus',
+        docAValue: '$155,000 base; zero signing bonus',
+        docBValue: '$165,000 base; $20,000 upfront signing bonus',
+        aiExplanation: 'Draft B enhances immediate liquidity and total annual guaranteed cash compensation by $30,000 in Year 1.',
+        differenceType: 'minor_difference',
+        affectedParty: 'Employee (Favorable)'
+      },
+      {
+        category: 'Responsibilities',
+        field: 'IP Inventions Assignment Scope',
+        docAValue: 'All inventions created during employment term, including off-hours on personal equipment',
+        docBValue: 'Inventions created using Company resources directly related to Company current core business; prior projects excluded',
+        aiExplanation: 'Draft B carves out pre-existing personal open-source projects and personal time discoveries.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Employee (Protection)'
+      },
+      {
+        category: 'Termination',
+        field: 'Post-Employment Non-Compete',
+        docAValue: '18 months worldwide across all AI/software development sectors',
+        docBValue: '6 months restricted to direct enterprise legal-tech competitors within 50 miles',
+        aiExplanation: 'Draft A severely restricts future employment; Draft B narrows duration to 6 months and restricts scope to direct competitors.',
+        differenceType: 'warning',
+        affectedParty: 'Employee (High Impact)'
+      },
+      {
+        category: 'Financial',
+        field: 'Severance & Health Benefits',
+        docAValue: '2 weeks statutory base salary; no COBRA subsidy',
+        docBValue: '12 weeks base salary + 3 months fully paid COBRA health continuation',
+        aiExplanation: 'Draft B provides a 6x stronger financial cushion if employment is terminated without cause.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Employee (Favorable)'
+      },
+      {
+        category: 'Governance',
+        field: 'Termination Notice & Cure Period',
+        docAValue: 'Immediate termination without prior notice during first 12 months',
+        docBValue: '30-day written notice with 15-day cure opportunity for non-gross misconduct',
+        aiExplanation: 'Draft B prevents arbitrary sudden dismissal by mandating written notice and a formal cure window.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Employee'
+      }
+    ],
+    summaryAI: 'The counter-offer (Draft B) materially improves employee legal protections: the aggressive 18-month global non-compete is curtailed to 6 localized months, pre-existing intellectual property is safeguarded from automatic company takeover, and severance protection expands from 2 to 12 weeks with paid medical continuity.'
+  },
+  msa: {
+    id: 'msa',
+    label: 'Master Services Agreement: Vendor Standard vs Enterprise Counter',
+    category: 'Commercial Contracts',
+    docA: {
+      name: 'Cloud Services Vendor Standard MSA (Draft A)',
+      type: 'B2B Services Agreement',
+      duration: '12 Months',
+      parties: 'HyperScale Cloud LLC / Enterprise Client'
     },
-    {
-      category: 'Responsibilities',
-      field: 'Maintenance Deductible',
-      docAValue: '$100 or less per incident paid by Tenant',
-      docBValue: '$50 or less per incident paid by Tenant',
-      aiExplanation: 'Draft B reduces tenant minor repair burden from $100 down to $50.',
-      differenceType: 'minor_difference' as const,
-      affectedParty: 'Tenant'
+    docB: {
+      name: 'Enterprise Client Revised Addendum (Draft B)',
+      type: 'B2B Services Agreement',
+      duration: '12 Months',
+      parties: 'HyperScale Cloud LLC / Enterprise Client'
     },
-    {
-      category: 'Governance',
-      field: 'Landlord Entry Notice',
-      docAValue: '12 hours advance digital notice',
-      docBValue: '24 hours advance written notice',
-      aiExplanation: 'Draft B offers better privacy protection aligning with standard 24-hour statutory courtesy.',
-      differenceType: 'minor_difference' as const,
-      affectedParty: 'Tenant (Favorable)'
-    },
-    {
-      category: 'Termination',
-      field: 'Lease Renewal Mechanism',
-      docAValue: 'Automatic expiration; explicit written agreement needed',
-      docBValue: 'Automatic month-to-month rollover with 5% annual escalation',
-      aiExplanation: 'Draft B automatically extends the tenancy into a month-to-month arrangement if neither party issues notice.',
-      differenceType: 'significant_difference' as const,
-      affectedParty: 'Both Parties'
-    },
-    {
-      category: 'Liability',
-      field: 'Dispute Resolution Method',
-      docAValue: 'Mandatory conciliation prior to court',
-      docBValue: 'Binding single-arbitrator commercial arbitration',
-      aiExplanation: 'Draft B forces disputes into binding private arbitration where legal fees may be higher.',
-      differenceType: 'warning' as const,
-      affectedParty: 'Both Parties'
-    }
-  ],
-  summaryAI: 'Comparing Draft A against Draft B reveals significant trade-offs: Draft B requires only 1 month security deposit upfront (saving $1,850 initially) and offers 24-hour entry notice. However, Draft B significantly increases risk upon exit by doubling the notice window to 60 days and demanding a steep double penalty for early termination. If you value flexibility, Draft A is safer; if you prioritize lower upfront cash, Draft B is preferable provided you negotiate the early exit penalty.'
+    comparisonItems: [
+      {
+        category: 'Financial',
+        field: 'Payment Terms & Invoicing',
+        docAValue: 'Net-15 days from electronic invoice generation',
+        docBValue: 'Net-60 days following written milestone acceptance sign-off',
+        aiExplanation: 'Draft B delays cash receipt by 45+ days and ties payment directly to client acceptance testing rather than invoice date.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Vendor (Cash Flow Delay)'
+      },
+      {
+        category: 'Responsibilities',
+        field: 'Milestone Acceptance Window',
+        docAValue: '5 business days deemed acceptance if no notice given',
+        docBValue: '15 business days with mandatory formal signoff certificate',
+        aiExplanation: 'Draft B eliminates automatic deemed acceptance, allowing the client 3x more time to evaluate deliverables before accepting.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Both Parties'
+      },
+      {
+        category: 'Liability',
+        field: 'Aggregate Liability Cap',
+        docAValue: '1x fees paid in preceding 12 months ($84,000 cap)',
+        docBValue: '3x fees ($252,000) with uncapped indemnity for data security breaches',
+        aiExplanation: 'Draft B exposes the service provider to potentially uncapped liabilities in the event of an IT or data security incident.',
+        differenceType: 'warning',
+        affectedParty: 'Vendor (Elevated Risk)'
+      },
+      {
+        category: 'Governance',
+        field: 'Uptime SLA & Remedy',
+        docAValue: '99.0% monthly uptime with 5% service credit',
+        docBValue: '99.95% monthly uptime with 25% credit and right of termination',
+        aiExplanation: 'Draft B demands carrier-grade 99.95% availability and gives the client immediate exit rights if SLA breaches recur.',
+        differenceType: 'warning',
+        affectedParty: 'Vendor'
+      },
+      {
+        category: 'Termination',
+        field: 'Termination for Convenience',
+        docAValue: '60 days notice with full payment of remaining contract term',
+        docBValue: '30 days notice with payment only for completed deliverables to date',
+        aiExplanation: 'Draft B allows the client to cancel on 30 days notice without having to pay out the remainder of the annual contract.',
+        differenceType: 'significant_difference',
+        affectedParty: 'Client (Favorable)'
+      }
+    ],
+    summaryAI: 'Draft B represents an enterprise client markup that shifts substantial financial and operational risk back to the vendor. Net-60 payment terms create cash flow lag, deemed acceptance is removed, and liability is uncapped for cybersecurity events. Negotiation should focus on restoring a reasonable super-cap on data breaches and capping SLA remedies to service credits.'
+  }
 };
+
+export const COMPARISON_DEMO_DATA = COMPARISON_PRESETS.lease;
