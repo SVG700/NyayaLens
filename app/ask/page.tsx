@@ -100,6 +100,7 @@ function AskDocumentContent() {
     if (initialQuery && messages.length === 1) {
       handleSend(initialQuery);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuery]);
 
   const handleSend = async (questionText?: string) => {

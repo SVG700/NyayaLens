@@ -24,6 +24,11 @@ export interface AIAnalysisProgressCallback {
 const clientAnalysisCache = new Map<string, LegalDocument>();
 const clientAnswerCache = new Map<string, { answer: string; sources: { clauseTitle: string; section: string; page: number; snippet: string }[] }>();
 
+export function clearAICache() {
+  clientAnalysisCache.clear();
+  clientAnswerCache.clear();
+}
+
 export async function analyzeDocument(
   fileName: string,
   rawText: string,
@@ -123,6 +128,13 @@ export async function answerDocumentQuestion(
 
   // 1. Employment Agreement Q&A Handling
   if (docId === 'doc-employment-002' || docType.includes('employment')) {
+    if (normalizedQ.includes('severance') || normalizedQ.includes('terminat') || normalizedQ.includes('fire') || normalizedQ.includes('notice') || /\bquit\b/.test(normalizedQ) || normalizedQ.includes('resign') || normalizedQ.includes('leave')) {
+      const clause = document.clauses.find(c => c.id === 'emp-cl-5') || document.clauses[4];
+      return {
+        answer: `Employment is at-will with thirty (30) days prior written notice by either party under Section 5.1. If the Company terminates you without Cause, Section 5.2 guarantees two (2) months of base salary ($27,500.00) as severance pay upon signing a mutual release.`,
+        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
+      };
+    }
     if (normalizedQ.includes('salary') || normalizedQ.includes('compensation') || normalizedQ.includes('pay') || normalizedQ.includes('earn')) {
       const clause = document.clauses.find(c => c.id === 'emp-cl-1') || document.clauses[0];
       return {
@@ -148,13 +160,6 @@ export async function answerDocumentQuestion(
       const clause = document.clauses.find(c => c.id === 'emp-cl-4') || document.clauses[3];
       return {
         answer: `Section 4.1 & 4.2 enforce an 18-month non-solicitation covenant following departure. You may not directly or indirectly recruit company colleagues, consultants, or solicit active clients with whom you had material contact.`,
-        sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
-      };
-    }
-    if (normalizedQ.includes('severance') || normalizedQ.includes('terminat') || normalizedQ.includes('fire') || normalizedQ.includes('notice') || normalizedQ.includes('quit') || normalizedQ.includes('leave')) {
-      const clause = document.clauses.find(c => c.id === 'emp-cl-5') || document.clauses[4];
-      return {
-        answer: `Employment is at-will with thirty (30) days prior written notice by either party under Section 5.1. If the Company terminates you without Cause, Section 5.2 guarantees two (2) months of base salary ($27,500.00) as severance pay upon signing a mutual release.`,
         sources: [{ clauseTitle: clause.title, section: clause.sectionNumber, page: clause.pageNumber, snippet: clause.originalText }]
       };
     }
@@ -193,7 +198,7 @@ export async function answerDocumentQuestion(
   }
 
   // 3. Rental Agreement Q&A Handling
-  if (normalizedQ.includes('termination') || normalizedQ.includes('notice') || normalizedQ.includes('leave') || normalizedQ.includes('vacate') || normalizedQ.includes('cancel')) {
+  if (normalizedQ.includes('terminat') || normalizedQ.includes('notice') || normalizedQ.includes('leave') || normalizedQ.includes('vacate') || normalizedQ.includes('cancel')) {
     const clause = document.clauses.find(c => c.category === 'Termination') || document.clauses[5] || document.clauses[0];
     return {
       answer: `According to ${clause.sectionNumber}, either party may terminate the agreement prior to expiration by furnishing thirty (30) calendar days prior written notice. However, Section 7.2 states that if you vacate prior to completion of the 11-month term without mutual consent, you forfeit 50% of the security deposit ($1,850) as liquidated damages.`,
