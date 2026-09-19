@@ -21,11 +21,19 @@ export interface AIAnalysisProgressCallback {
  * Operates seamlessly with built-in legal intelligence heuristics and connects to live GenAI when configured.
  */
 
+const clientAnalysisCache = new Map<string, LegalDocument>();
+const clientAnswerCache = new Map<string, { answer: string; sources: { clauseTitle: string; section: string; page: number; snippet: string }[] }>();
+
 export async function analyzeDocument(
   fileName: string,
   rawText: string,
   onProgress?: AIAnalysisProgressCallback
 ): Promise<LegalDocument> {
+  const cacheKey = `${fileName}:${rawText ? rawText.slice(0, 500) : ''}:${rawText ? rawText.length : 0}`;
+  if (!onProgress && clientAnalysisCache.has(cacheKey)) {
+    return clientAnalysisCache.get(cacheKey)!;
+  }
+
   // Report progress milestones for realistic user feedback
   if (onProgress) {
     onProgress('Uploading document securely...', 20);
@@ -50,6 +58,7 @@ export async function analyzeDocument(
       if (response.ok) {
         const liveDoc = await response.json();
         if (liveDoc && liveDoc.clauses && liveDoc.clauses.length > 0) {
+          clientAnalysisCache.set(cacheKey, liveDoc);
           return liveDoc;
         }
       }
@@ -57,14 +66,18 @@ export async function analyzeDocument(
       // Graceful offline fallback to heuristic parser
     }
 
-    return extractFromCustomText(fileName, rawText);
+    const parsedDoc = extractFromCustomText(fileName, rawText);
+    clientAnalysisCache.set(cacheKey, parsedDoc);
+    return parsedDoc;
   }
 
   // Otherwise return the canonical comprehensive demo analysis
-  return {
+  const demoResult = {
     ...DEMO_RENTAL_AGREEMENT,
     name: fileName.endsWith('.pdf') || fileName.endsWith('.docx') ? fileName : `${fileName} (Residential Lease)`
   };
+  clientAnalysisCache.set(cacheKey, demoResult);
+  return demoResult;
 }
 
 export async function answerDocumentQuestion(
@@ -72,6 +85,11 @@ export async function answerDocumentQuestion(
   question: string,
   conversationHistory: ChatMessage[] = []
 ): Promise<{ answer: string; sources: { clauseTitle: string; section: string; page: number; snippet: string }[] }> {
+  const cacheKey = `${document.id || document.name}:${question.trim().toLowerCase()}`;
+  if (conversationHistory.length === 0 && clientAnswerCache.has(cacheKey)) {
+    return clientAnswerCache.get(cacheKey)!;
+  }
+
   // Check if an external GenAI endpoint is available on server
   try {
     const response = await fetch('/api/ai/ask', {
@@ -88,6 +106,9 @@ export async function answerDocumentQuestion(
     if (response.ok) {
       const data = await response.json();
       if (data.answer && data.sources) {
+        if (conversationHistory.length === 0) {
+          clientAnswerCache.set(cacheKey, data);
+        }
         return data;
       }
     }
