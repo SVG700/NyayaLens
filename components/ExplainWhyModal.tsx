@@ -26,6 +26,57 @@ export const ExplainWhyModal: React.FC<ExplainWhyModalProps> = ({
   onClose
 }) => {
   const [copied, setCopied] = React.useState(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
+  const previousActiveElement = React.useRef<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement;
+      const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable && focusable.length > 0) {
+        focusable[0].focus();
+      }
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          onClose();
+          return;
+        }
+
+        if (e.key === 'Tab' && modalRef.current) {
+          const focusableEls = modalRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          if (!focusableEls || focusableEls.length === 0) return;
+          const firstEl = focusableEls[0];
+          const lastEl = focusableEls[focusableEls.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === firstEl) {
+              e.preventDefault();
+              lastEl.focus();
+            }
+          } else {
+            if (document.activeElement === lastEl) {
+              e.preventDefault();
+              firstEl.focus();
+            }
+          }
+        }
+      };
+
+      document.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        if (previousActiveElement.current) {
+          previousActiveElement.current.focus();
+        }
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!isOpen || !clause) return null;
 
@@ -38,6 +89,7 @@ export const ExplainWhyModal: React.FC<ExplainWhyModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
       <div
+        ref={modalRef}
         className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         role="dialog"
         aria-modal="true"
@@ -54,7 +106,7 @@ export const ExplainWhyModal: React.FC<ExplainWhyModalProps> = ({
                 <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700">
                   {clause.sectionNumber}
                 </span>
-                <span className="text-xs text-slate-500">Page {clause.pageNumber}</span>
+                <span className="text-xs text-slate-600">Page {clause.pageNumber}</span>
               </div>
               <h3 id="modal-title" className="text-lg font-bold text-slate-900 mt-0.5">
                 AI Deep Dive: {clause.title}
@@ -62,9 +114,10 @@ export const ExplainWhyModal: React.FC<ExplainWhyModalProps> = ({
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            aria-label="Close modal"
-            className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"
+            aria-label="Close modal dialog"
+            className="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -143,7 +196,9 @@ export const ExplainWhyModal: React.FC<ExplainWhyModalProps> = ({
                 Suggested Question for a Lawyer
               </div>
               <button
+                type="button"
                 onClick={handleCopyQuestion}
+                aria-label="Copy suggested question for lawyer"
                 className="inline-flex items-center gap-1 text-xs font-medium text-indigo-700 hover:text-indigo-900 bg-white/80 px-2 py-1 rounded border border-indigo-200 shadow-2xs transition"
               >
                 {copied ? (
@@ -170,10 +225,11 @@ export const ExplainWhyModal: React.FC<ExplainWhyModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-slate-600">
             Informational assistance only. Does not constitute legal counsel.
           </p>
           <button
+            type="button"
             onClick={onClose}
             className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-subtle transition"
           >

@@ -83,7 +83,7 @@ export default function DashboardPage() {
           <div className="text-lg font-bold text-slate-900 mt-2 truncate">
             {currentDocument.name}
           </div>
-          <span className="text-[11px] text-slate-400 block mt-0.5">
+          <span className="text-[11px] text-slate-600 block mt-0.5">
             {currentDocument.type}
           </span>
         </div>
@@ -96,33 +96,33 @@ export default function DashboardPage() {
           <div className="text-2xl font-extrabold text-slate-900 mt-2">
             {currentDocument.clauses.length}
           </div>
-          <span className="text-[11px] text-emerald-600 block mt-0.5 font-medium">
+          <span className="text-[11px] text-emerald-800 block mt-0.5 font-medium">
             100% extracted & simplified
           </span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+          <div className="flex items-center justify-between text-slate-600 text-xs font-medium">
             <span>Review Items</span>
-            <AlertTriangle className="w-4 h-4 text-amber-500" />
+            <AlertTriangle className="w-4 h-4 text-amber-600" aria-hidden="true" />
           </div>
           <div className="text-2xl font-extrabold text-slate-900 mt-2">
             {currentDocument.reviewPoints.length}
           </div>
-          <span className="text-[11px] text-amber-700 block mt-0.5 font-medium">
+          <span className="text-[11px] text-amber-800 block mt-0.5 font-medium">
             Requires your attention
           </span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-subtle">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+          <div className="flex items-center justify-between text-slate-600 text-xs font-medium">
             <span>Key Deadlines</span>
-            <Calendar className="w-4 h-4 text-indigo-500" />
+            <Calendar className="w-4 h-4 text-indigo-600" aria-hidden="true" />
           </div>
           <div className="text-2xl font-extrabold text-slate-900 mt-2">
             {currentDocument.dates.length}
           </div>
-          <span className="text-[11px] text-indigo-600 block mt-0.5 font-medium">
+          <span className="text-[11px] text-indigo-700 block mt-0.5 font-medium">
             Timeline generated
           </span>
         </div>
@@ -273,26 +273,28 @@ export default function DashboardPage() {
                     {doc.summary}
                   </p>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-4 bg-slate-50 p-2.5 rounded-lg">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-700 mb-4 bg-slate-50 p-2.5 rounded-lg">
                     <div>
-                      <span className="text-[10px] text-slate-400 block uppercase">Clauses</span>
+                      <span className="text-[10px] text-slate-600 block uppercase">Clauses</span>
                       <strong className="text-slate-800">{doc.clauses.length} identified</strong>
                     </div>
                     <div>
-                      <span className="text-[10px] text-slate-400 block uppercase">Review Points</span>
-                      <strong className="text-amber-700">{doc.reviewPoints.length} items</strong>
+                      <span className="text-[10px] text-slate-600 block uppercase">Review Points</span>
+                      <strong className="text-amber-800">{doc.reviewPoints.length} items</strong>
                     </div>
                   </div>
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-[11px] text-slate-400">
+                  <div className="flex items-center gap-1 text-[11px] text-slate-600">
                     <Clock className="w-3 h-3" />
                     <span>{doc.lastAnalyzed}</span>
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => handleOpenDoc(doc)}
+                    aria-label={`Open analysis for ${doc.name}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-indigo-600 text-white text-xs font-semibold transition"
                   >
                     <span>Open Analysis</span>

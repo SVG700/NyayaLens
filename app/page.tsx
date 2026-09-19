@@ -381,9 +381,9 @@ export default function LandingPage() {
                 Ethical AI Guardrails
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
                 Designed to Inform and Empower — Not Replace Counsel
-              </h3>
+              </h2>
 
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl font-light">
                 NyayaLens provides AI-generated legal information for understanding and preparation. It does not replace advice from a qualified legal professional. Our objective is to make you literate in your contract so you can consult with attorneys faster and with greater confidence.
@@ -391,12 +391,14 @@ export default function LandingPage() {
 
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <button
+                  type="button"
                   onClick={handleStartDemo}
                   className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-md"
                 >
                   Explore Live Demo
                 </button>
                 <button
+                  type="button"
                   onClick={() => setResponsibleModalOpen(true)}
                   className="text-xs text-indigo-300 hover:text-white underline font-medium transition"
                 >

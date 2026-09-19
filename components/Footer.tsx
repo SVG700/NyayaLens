@@ -35,9 +35,9 @@ export const Footer: React.FC = () => {
             </div>
 
             <div>
-              <h4 className="text-slate-200 font-semibold mb-3 text-xs uppercase tracking-wider">
+              <h2 className="text-slate-200 font-semibold mb-3 text-xs uppercase tracking-wider">
                 Capabilities
-              </h4>
+              </h2>
               <ul className="space-y-2">
                 <li><Link href="/analyze" className="hover:text-white transition">Document Analysis</Link></li>
                 <li><Link href="/compare" className="hover:text-white transition">Contract Comparison</Link></li>
@@ -48,13 +48,13 @@ export const Footer: React.FC = () => {
             </div>
 
             <div>
-              <h4 className="text-slate-200 font-semibold mb-3 text-xs uppercase tracking-wider">
+              <h2 className="text-slate-200 font-semibold mb-3 text-xs uppercase tracking-wider">
                 Ethics & Trust
-              </h4>
+              </h2>
               <ul className="space-y-2">
-                <li><button onClick={() => setModalOpen(true)} className="hover:text-white transition text-left">Grounded AI Verification</button></li>
+                <li><button type="button" onClick={() => setModalOpen(true)} className="hover:text-white transition text-left">Grounded AI Verification</button></li>
                 <li><Link href="/settings" className="hover:text-white transition">Model Transparency</Link></li>
-                <li><button onClick={() => setModalOpen(true)} className="hover:text-white transition text-left">Attorney Preparation Protocol</button></li>
+                <li><button type="button" onClick={() => setModalOpen(true)} className="hover:text-white transition text-left">Attorney Preparation Protocol</button></li>
               </ul>
             </div>
           </div>
@@ -68,6 +68,7 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <button
+              type="button"
               onClick={() => setModalOpen(true)}
               className="text-indigo-400 hover:text-indigo-300 shrink-0 font-medium underline transition text-xs"
             >
@@ -75,7 +76,7 @@ export const Footer: React.FC = () => {
             </button>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+          <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
             <div>
               &copy; {new Date().getFullYear()} NyayaLens AI Platform. All rights reserved.
             </div>

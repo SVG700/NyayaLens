@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useDocument } from '@/context/DocumentContext';
@@ -29,6 +29,18 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoMenuOpen, setDemoMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (demoMenuOpen) setDemoMenuOpen(false);
+        if (showNotifications) setShowNotifications(false);
+        if (mobileMenuOpen) setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [demoMenuOpen, showNotifications, mobileMenuOpen]);
 
   const navLinks = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -93,7 +105,11 @@ export const Navbar: React.FC = () => {
             {/* Demo Document Quick Switcher */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setDemoMenuOpen(!demoMenuOpen)}
+                aria-expanded={demoMenuOpen}
+                aria-haspopup="menu"
+                aria-controls="demo-menu-dropdown"
                 className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200/70 transition shadow-2xs"
               >
                 <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
@@ -102,13 +118,19 @@ export const Navbar: React.FC = () => {
               </button>
 
               {demoMenuOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-slide-up">
-                  <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                <div
+                  id="demo-menu-dropdown"
+                  role="menu"
+                  aria-label="Demo documents"
+                  className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-slide-up"
+                >
+                  <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                     Select Demo Document
                   </div>
                   {ALL_DEMO_DOCUMENTS.map((doc) => (
                     <button
                       key={doc.id}
+                      role="menuitem"
                       onClick={() => {
                         loadDemoDocument(doc.id);
                         setDemoMenuOpen(false);
@@ -119,7 +141,7 @@ export const Navbar: React.FC = () => {
                       )}
                     >
                       <span className="font-semibold text-slate-800">{doc.name}</span>
-                      <span className="text-[11px] text-slate-500">{doc.type}</span>
+                      <span className="text-[11px] text-slate-600">{doc.type}</span>
                     </button>
                   ))}
                 </div>
@@ -129,16 +151,25 @@ export const Navbar: React.FC = () => {
             {/* Notifications */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setShowNotifications(!showNotifications)}
+                aria-expanded={showNotifications}
+                aria-haspopup="dialog"
+                aria-controls="notifications-panel"
                 className="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition relative"
-                aria-label="Notifications"
+                aria-label={showNotifications ? 'Close notifications' : 'Open notifications'}
               >
                 <Bell className="w-4 h-4" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-white"></span>
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 animate-slide-up">
+                <div
+                  id="notifications-panel"
+                  role="region"
+                  aria-label="Notifications"
+                  className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 animate-slide-up"
+                >
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <span className="text-xs font-bold text-slate-900">Notifications</span>
                     <span className="text-[10px] text-indigo-600 font-medium">3 new</span>
@@ -179,9 +210,12 @@ export const Navbar: React.FC = () => {
 
             {/* Mobile menu button */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
               className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              aria-label="Toggle Navigation Menu"
+              aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -190,7 +224,11 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Dropdown Nav */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-3 border-t border-slate-200 space-y-1 animate-slide-up">
+          <nav
+            id="mobile-navigation"
+            aria-label="Mobile Navigation"
+            className="lg:hidden py-3 border-t border-slate-200 space-y-1 animate-slide-up"
+          >
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = pathname === link.href;
@@ -213,6 +251,7 @@ export const Navbar: React.FC = () => {
             })}
             <div className="pt-2 border-t border-slate-100">
               <button
+                type="button"
                 onClick={() => {
                   loadDemoDocument();
                   setMobileMenuOpen(false);
@@ -223,7 +262,7 @@ export const Navbar: React.FC = () => {
                 Try Demo Document
               </button>
             </div>
-          </div>
+          </nav>
         )}
       </div>
     </header>

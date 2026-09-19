@@ -152,37 +152,43 @@ export default function TimelinePage() {
               Chronological Roadmap
             </span>
           </div>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-600 text-sm mt-1">
             Grounded milestone schedule for <strong>{currentDocument.name}</strong>.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={handleExportICS}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-semibold transition"
+            aria-label="Export all document deadlines and milestones to iCalendar (.ics)"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
             title="Export deadlines to Apple Calendar, Google Calendar, or Outlook"
           >
-            <Download className="w-3.5 h-3.5 text-indigo-600" />
+            <Download className="w-3.5 h-3.5 text-indigo-600" aria-hidden="true" />
             <span>Export to Calendar (.ics)</span>
           </button>
 
           <Link
             href="/checklist"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-subtle transition"
+            aria-label="View action checklist for this document"
           >
             <span>View Action Checklist</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
           </Link>
         </div>
       </div>
 
       {/* 2. Upcoming Actions Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-subtle space-y-4 border-l-4 border-l-indigo-600">
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
-          <CalendarCheck className="w-4 h-4 text-indigo-600" />
+      <section
+        aria-labelledby="upcoming-actions-heading"
+        className="bg-white rounded-2xl border border-slate-200 p-6 shadow-subtle space-y-4 border-l-4 border-l-indigo-600"
+      >
+        <h2 id="upcoming-actions-heading" className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
+          <CalendarCheck className="w-4 h-4 text-indigo-600" aria-hidden="true" />
           <span>Upcoming Actions to Take</span>
-        </div>
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {upcomingActions.map((action, i) => (
@@ -194,34 +200,36 @@ export default function TimelinePage() {
                 <span className="text-[10px] font-mono font-bold text-indigo-700 block uppercase">
                   {action.due}
                 </span>
-                <h4 className="font-bold text-slate-900 text-xs mt-1">
+                <h3 className="font-bold text-slate-900 text-xs mt-1">
                   {action.title}
-                </h4>
-                <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                </h3>
+                <p className="text-[11px] text-slate-700 mt-1 leading-relaxed">
                   {action.detail}
                 </p>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* 3. Filter Controls */}
-      <div className="flex items-center justify-between">
+      <div role="group" aria-label="Filter milestones by timeframe" className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-400 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" />
+          <span className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
             Filter:
           </span>
           {(['all', 'upcoming', 'past'] as const).map((t) => (
             <button
               key={t}
+              type="button"
+              aria-pressed={filterType === t}
               onClick={() => setFilterType(t)}
               className={cn(
-                'px-3 py-1 text-xs font-semibold rounded-lg transition capitalize',
+                'px-3 py-1 text-xs font-semibold rounded-lg transition capitalize focus:outline-none focus:ring-2 focus:ring-slate-500',
                 filterType === t
                   ? 'bg-slate-900 text-white'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
               )}
             >
               {t === 'all' ? 'All Milestones' : t}
@@ -229,13 +237,14 @@ export default function TimelinePage() {
           ))}
         </div>
 
-        <span className="text-xs text-slate-500 font-mono">
+        <span className="text-xs text-slate-600 font-mono font-medium">
           {filteredDates.length} milestones
         </span>
       </div>
 
       {/* 4. Vertical Interactive Timeline */}
-      <div className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-3 sm:before:left-4 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-200">
+      <section aria-labelledby="milestone-roadmap-heading" className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-3 sm:before:left-4 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-200">
+        <h2 id="milestone-roadmap-heading" className="sr-only">Milestone Roadmap</h2>
         {filteredDates.map((item) => {
           const isPast = !item.isUpcoming;
           const isReminderSet = reminderSetId === item.id;
@@ -244,10 +253,11 @@ export default function TimelinePage() {
             <div key={item.id} className="relative group">
               {/* Timeline Marker Dot */}
               <div
+                aria-hidden="true"
                 className={cn(
                   'absolute -left-6 sm:-left-8 top-1.5 w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-white shadow-xs',
                   isPast
-                    ? 'bg-slate-400 text-white'
+                    ? 'bg-slate-500 text-white'
                     : 'bg-indigo-600 text-white animate-pulse-subtle'
                 )}
               >
@@ -272,7 +282,7 @@ export default function TimelinePage() {
 
                   <div className="flex items-center gap-2">
                     {item.sourceSection && (
-                      <span className="text-[11px] font-mono text-slate-400">
+                      <span className="text-[11px] font-mono text-slate-600 font-medium">
                         {item.sourceSection}
                       </span>
                     )}
@@ -280,7 +290,7 @@ export default function TimelinePage() {
                       className={cn(
                         'text-[11px] font-semibold px-2 py-0.5 rounded-full border',
                         isPast
-                          ? 'bg-slate-100 text-slate-600 border-slate-200'
+                          ? 'bg-slate-100 text-slate-700 border-slate-200'
                           : 'bg-amber-50 text-amber-800 border-amber-200'
                       )}
                     >
@@ -289,7 +299,7 @@ export default function TimelinePage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-slate-700 leading-relaxed">
                   {item.explanation}
                 </p>
 
@@ -300,17 +310,19 @@ export default function TimelinePage() {
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => handleSetReminder(item.id)}
-                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs shadow-2xs transition"
+                    aria-label={isReminderSet ? `Calendar synced for ${item.event}` : `Set reminder for ${item.event}`}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     {isReminderSet ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span role="status" aria-live="polite" className="inline-flex items-center gap-1 text-emerald-700">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
                         <span>Calendar Synced</span>
-                      </>
+                      </span>
                     ) : (
                       <>
-                        <Bell className="w-3.5 h-3.5 text-indigo-600" />
+                        <Bell className="w-3.5 h-3.5 text-indigo-600" aria-hidden="true" />
                         <span>Set Reminder</span>
                       </>
                     )}
@@ -320,7 +332,7 @@ export default function TimelinePage() {
             </div>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 }

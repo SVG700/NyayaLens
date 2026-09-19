@@ -93,9 +93,9 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="flex items-center gap-2 flex-wrap">
           {title && (
-            <h4 className="font-semibold text-slate-900 text-base leading-snug">
+            <h3 className="font-semibold text-slate-900 text-base leading-snug">
               {title}
-            </h4>
+            </h3>
           )}
           {tag && (
             <span
@@ -111,14 +111,14 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
         </div>
       </div>
 
-      <p className="text-slate-600 text-sm leading-relaxed mb-3">
+      <p className="text-slate-700 text-sm leading-relaxed mb-3">
         {content}
       </p>
 
       {(source || actionLabel || footer) && (
         <div className="pt-3 mt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
           {source && (
-            <div className="flex items-center gap-1.5 text-slate-500 font-mono bg-slate-50 px-2 py-1 rounded">
+            <div className="flex items-center gap-1.5 text-slate-600 font-mono bg-slate-50 px-2 py-1 rounded">
               <FileText className="w-3.5 h-3.5 text-indigo-500" />
               <span>
                 {source.section && `${source.section}`}
@@ -130,7 +130,9 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
 
           {actionLabel && (
             <button
+              type="button"
               onClick={onAction}
+              aria-label={title ? `${actionLabel} for ${title}` : actionLabel}
               className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline transition ml-auto"
             >
               {actionLabel}

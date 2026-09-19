@@ -136,41 +136,47 @@ Disclaimer: Informational assistance only. Does not replace professional legal c
               Action Plan
             </span>
           </div>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-600 text-sm mt-1">
             Generated step-by-step verification checklist for <strong>{currentDocument.name}</strong>.
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           <button
+            type="button"
             onClick={handleExportChecklist}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition"
+            aria-label="Export diligence checklist as text file"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition focus:outline-none focus:ring-2 focus:ring-slate-500"
             title="Download checklist text file"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-slate-600" aria-hidden="true" />
             <span className="hidden sm:inline">Export Text</span>
           </button>
 
           <button
+            type="button"
             onClick={() => window.print()}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-600 transition"
+            aria-label="Print action checklist"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition focus:outline-none focus:ring-2 focus:ring-slate-500"
           >
-            <Printer className="w-3.5 h-3.5" />
+            <Printer className="w-3.5 h-3.5 text-slate-600" aria-hidden="true" />
             <span>Print</span>
           </button>
 
           <button
+            type="button"
             onClick={handleCopyLawyerPrep}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-subtle transition"
+            aria-label="Copy legal consultation brief to clipboard"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-subtle transition focus:outline-none focus:ring-2 focus:ring-slate-900"
           >
             {copiedAll ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <Check className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
                 <span>Copied Brief!</span>
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5 text-indigo-300" />
+                <Copy className="w-3.5 h-3.5 text-indigo-300" aria-hidden="true" />
                 <span>Copy Consultation Brief</span>
               </>
             )}
@@ -179,39 +185,49 @@ Disclaimer: Informational assistance only. Does not replace professional legal c
       </div>
 
       {/* 2. Progress Strip */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-subtle space-y-3">
+      <section aria-labelledby="checklist-progress-title" className="bg-white p-5 rounded-2xl border border-slate-200 shadow-subtle space-y-3">
+        <h2 id="checklist-progress-title" className="sr-only">Checklist Completion Progress</h2>
         <div className="flex items-center justify-between text-xs font-semibold">
           <div className="flex items-center gap-2">
             <span className="text-slate-900 font-bold">Checklist Completion Status</span>
-            <span className="text-slate-400 font-normal">
+            <span className="text-slate-600 font-medium">
               ({completedCount} of {totalCount} completed)
             </span>
           </div>
-          <span className="font-mono text-indigo-600 font-bold">{progressPercent}%</span>
+          <span className="font-mono text-indigo-700 font-bold">{progressPercent}%</span>
         </div>
 
-        <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
+        <div
+          role="progressbar"
+          aria-valuenow={progressPercent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Checklist completion percentage"
+          className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden"
+        >
           <div
             className="h-full bg-gradient-to-r from-indigo-600 to-emerald-500 rounded-full transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-      </div>
+      </section>
 
       {/* 3. Interactive Checklist Items */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-subtle space-y-4">
+      <section aria-labelledby="checklist-items-title" className="bg-white rounded-2xl border border-slate-200 p-6 shadow-subtle space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 id="checklist-items-title" className="text-base font-bold text-slate-900">
               Action Items & Diligence Tasks
             </h2>
-            <span className="text-xs text-slate-400">Click any item to toggle completion</span>
+            <span className="text-xs text-slate-600">Click any item to toggle completion</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={handleToggleAll}
-              className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold px-2.5 py-1 rounded bg-indigo-50 border border-indigo-200 transition"
+              aria-label={completedCount === totalCount ? 'Unmark all checklist items' : 'Mark all checklist items complete'}
+              className="text-xs text-indigo-700 hover:text-indigo-900 font-semibold px-2.5 py-1 rounded bg-indigo-50 border border-indigo-200 transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               {completedCount === totalCount ? 'Unmark All' : 'Mark All Complete'}
             </button>
@@ -219,20 +235,22 @@ Disclaimer: Informational assistance only. Does not replace professional legal c
         </div>
 
         {/* Category Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          <span className="text-xs font-semibold text-slate-400 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" />
+        <div role="group" aria-label="Filter checklist items by category" className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <span className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
             Category:
           </span>
           {categories.map((cat) => (
             <button
               key={cat}
+              type="button"
+              aria-pressed={selectedFilter === cat}
               onClick={() => setSelectedFilter(cat)}
               className={cn(
-                'px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap',
+                'px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-slate-500',
                 selectedFilter === cat
                   ? 'bg-slate-900 text-white'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
               )}
             >
               {cat}
@@ -249,19 +267,21 @@ Disclaimer: Informational assistance only. Does not replace professional legal c
               className={cn(
                 'p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none',
                 item.completed
-                  ? 'bg-slate-50/70 border-slate-200 opacity-60'
+                  ? 'bg-slate-50 border-slate-200'
                   : 'bg-white border-slate-200 hover:border-indigo-300 hover:shadow-subtle'
               )}
             >
               <button
                 type="button"
-                className="mt-0.5 shrink-0 text-indigo-600 transition"
-                aria-label={item.completed ? 'Mark incomplete' : 'Mark complete'}
+                role="checkbox"
+                aria-checked={item.completed}
+                aria-label={`Mark "${item.text}" as ${item.completed ? 'incomplete' : 'complete'}`}
+                className="mt-0.5 shrink-0 text-indigo-600 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
               >
                 {item.completed ? (
-                  <CheckSquare className="w-5 h-5 text-emerald-600" />
+                  <CheckSquare className="w-5 h-5 text-emerald-600" aria-hidden="true" />
                 ) : (
-                  <Square className="w-5 h-5 text-slate-400" />
+                  <Square className="w-5 h-5 text-slate-500" aria-hidden="true" />
                 )}
               </button>
 
@@ -270,24 +290,24 @@ Disclaimer: Informational assistance only. Does not replace professional legal c
                   <span
                     className={cn(
                       'text-xs font-semibold',
-                      item.completed ? 'line-through text-slate-500' : 'text-slate-900'
+                      item.completed ? 'line-through text-slate-600' : 'text-slate-900'
                     )}
                   >
                     {item.text}
                   </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700">
                     {item.category}
                   </span>
                 </div>
 
                 {item.note && (
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-600">
                     Note: {item.note}
                   </p>
                 )}
 
                 {item.deadline && (
-                  <span className="text-[10px] font-mono text-indigo-700 block">
+                  <span className="text-[10px] font-mono text-indigo-700 block font-semibold">
                     Deadline: {item.deadline}
                   </span>
                 )}
@@ -298,56 +318,71 @@ Disclaimer: Informational assistance only. Does not replace professional legal c
 
         {/* Add custom item form */}
         <form onSubmit={handleAddCustom} className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
+          <label htmlFor="new-checklist-text" className="sr-only">
+            Add custom diligence note or verification item
+          </label>
           <input
+            id="new-checklist-text"
             type="text"
             placeholder="Add custom diligence note or verification item..."
+            aria-label="Add custom diligence note or verification item"
             value={newItemText}
             onChange={(e) => setNewItemText(e.target.value)}
-            className="flex-1 px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="flex-1 px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           />
+
+          <label htmlFor="new-checklist-category" className="sr-only">
+            Select diligence item category
+          </label>
           <select
+            id="new-checklist-category"
+            aria-label="Select diligence item category"
             value={newItemCategory}
             onChange={(e) => setNewItemCategory(e.target.value as any)}
-            className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium"
+            className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             <option value="Pre-Signing">Pre-Signing</option>
             <option value="Immediate">Immediate</option>
             <option value="Ongoing">Ongoing</option>
             <option value="Legal Consultation">Legal Consultation</option>
           </select>
+
           <button
             type="submit"
             disabled={!newItemText.trim()}
-            className="inline-flex items-center justify-center gap-1 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-semibold transition"
+            aria-label="Add item to checklist"
+            className="inline-flex items-center justify-center gap-1 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-slate-900"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Add Item</span>
           </button>
         </form>
-      </div>
+      </section>
 
       {/* 4. Prepare Questions for a Lawyer Section */}
-      <div className="bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 rounded-2xl border border-indigo-200/80 p-6 shadow-subtle space-y-5">
+      <section aria-labelledby="lawyer-questions-title" className="bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 rounded-2xl border border-indigo-200/80 p-6 shadow-subtle space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-indigo-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center" aria-hidden="true">
               <Scale className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h2 id="lawyer-questions-title" className="text-base font-bold text-slate-900">
                 Prepare Questions for a Lawyer
-              </h3>
-              <p className="text-xs text-slate-500">
+              </h2>
+              <p className="text-xs text-slate-600">
                 Framed for consultation preparation to maximize your meeting efficiency
               </p>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={handleCopyLawyerPrep}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-indigo-200 hover:bg-indigo-100/70 text-indigo-900 text-xs font-semibold transition shadow-2xs"
+            aria-label="Copy all legal consultation questions to clipboard"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-indigo-200 hover:bg-indigo-100/70 text-indigo-900 text-xs font-semibold transition shadow-2xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <Copy className="w-3.5 h-3.5 text-indigo-600" />
+            <Copy className="w-3.5 h-3.5 text-indigo-600" aria-hidden="true" />
             <span>Copy All Questions</span>
           </button>
         </div>
@@ -364,27 +399,29 @@ Disclaimer: Informational assistance only. Does not replace professional legal c
                     {idx + 1}
                   </span>
                   <div className="space-y-1">
-                    <h4 className="font-bold text-slate-900 text-xs sm:text-sm">
+                    <h3 className="font-bold text-slate-900 text-xs sm:text-sm">
                       "{q.question}"
-                    </h4>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                    </h3>
+                    <p className="text-[11px] text-slate-700 leading-relaxed">
                       <strong>Rationale:</strong> {q.rationale}
                     </p>
-                    <div className="text-[10px] font-mono text-indigo-700 pt-1">
+                    <div className="text-[10px] font-mono text-indigo-700 pt-1 font-semibold">
                       Related Section: {q.relatedClause}
                     </div>
                   </div>
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => handleCopySingleQuestion(q.id, q.question)}
-                  className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition"
+                  className="shrink-0 p-1.5 rounded-lg text-slate-600 hover:text-indigo-700 hover:bg-indigo-50 transition focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   title="Copy question"
+                  aria-label={`Copy question: "${q.question}"`}
                 >
                   {copiedQuestionId === q.id ? (
-                    <Check className="w-4 h-4 text-emerald-600" />
+                    <Check className="w-4 h-4 text-emerald-600" aria-hidden="true" />
                   ) : (
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-4 h-4" aria-hidden="true" />
                   )}
                 </button>
               </div>
@@ -393,12 +430,12 @@ Disclaimer: Informational assistance only. Does not replace professional legal c
         </div>
 
         <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-[11px] leading-relaxed flex items-start gap-2">
-          <MessageSquareQuote className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <MessageSquareQuote className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
           <span>
             <strong>Professional Consultation Disclaimer:</strong> These questions are structured to help you organize your discussion with an attorney. Bring this sheet and your contract to your consultation.
           </span>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
