@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useDocument } from '@/context/DocumentContext';
 import { Clause, ClauseCategory, ClauseTag } from '@/lib/types';
@@ -71,29 +71,32 @@ function AnalyzeContent() {
     }
   };
 
-  // Filter clauses for AI tab
-  const filteredClauses = currentDocument.clauses.filter((clause) => {
-    const matchesCategory =
-      selectedCategory === 'All' ||
-      clause.category === selectedCategory ||
-      clause.tags.includes(selectedCategory as ClauseTag);
-    const matchesSearch =
-      clause.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      clause.originalText.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      clause.simplifiedText.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Filter clauses for AI tab - memoized for performance
+  const filteredClauses = useMemo(() => {
+    return currentDocument.clauses.filter((clause) => {
+      const matchesCategory =
+        selectedCategory === 'All' ||
+        clause.category === selectedCategory ||
+        clause.tags.includes(selectedCategory as ClauseTag);
+      const matchesSearch =
+        !searchTerm.trim() ||
+        clause.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        clause.originalText.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        clause.simplifiedText.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [currentDocument.clauses, selectedCategory, searchTerm]);
 
-  // Filter clauses inside Document Viewer
-  const viewerClauses = currentDocument.clauses.filter((clause) => {
-    if (!viewerSearch.trim()) return true;
+  // Filter clauses inside Document Viewer - memoized for performance
+  const viewerClauses = useMemo(() => {
+    if (!viewerSearch.trim()) return currentDocument.clauses;
     const q = viewerSearch.toLowerCase();
-    return (
+    return currentDocument.clauses.filter((clause) =>
       clause.title.toLowerCase().includes(q) ||
       clause.sectionNumber.toLowerCase().includes(q) ||
       clause.originalText.toLowerCase().includes(q)
     );
-  });
+  }, [currentDocument.clauses, viewerSearch]);
 
   const getTextClass = () => {
     switch (textSize) {

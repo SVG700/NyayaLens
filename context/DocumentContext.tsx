@@ -1,11 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { LegalDocument } from '@/lib/types';
 import {
   DEMO_RENTAL_AGREEMENT,
   DEMO_EMPLOYMENT_AGREEMENT,
-  DEMO_SERVICE_CONTRACT,
   ALL_DEMO_DOCUMENTS
 } from '@/lib/mockData';
 import { analyzeDocument } from '@/lib/ai';
@@ -47,7 +46,9 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const savedDoc = localStorage.getItem(STORAGE_KEY);
       if (savedDoc) {
         const parsed = JSON.parse(savedDoc);
-        setCurrentDocumentState(parsed);
+        if (parsed && parsed.id && parsed.clauses) {
+          setCurrentDocumentState(parsed);
+        }
       }
       const savedList = localStorage.getItem(DOCS_LIST_KEY);
       if (savedList) {
@@ -61,39 +62,50 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  const setCurrentDocument = (doc: LegalDocument) => {
+  const setCurrentDocument = useCallback((doc: LegalDocument) => {
     setCurrentDocumentState(doc);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(doc));
     } catch {
       // ignore
     }
-  };
+  }, []);
 
-  const selectDocumentById = (id: string) => {
-    const found = documentsList.find((d) => d.id === id) || ALL_DEMO_DOCUMENTS.find((d) => d.id === id);
-    if (found) {
-      setCurrentDocument(found);
-    }
-  };
+  const selectDocumentById = useCallback((id: string) => {
+    setDocumentsList((currentList) => {
+      const found = currentList.find((d) => d.id === id) || ALL_DEMO_DOCUMENTS.find((d) => d.id === id);
+      if (found) {
+        setCurrentDocumentState(found);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(found));
+        } catch {
+          // ignore
+        }
+      }
+      return currentList;
+    });
+  }, []);
 
-  const loadDemoDocument = (id: string = 'doc-rental-001') => {
+  const loadDemoDocument = useCallback((id: string = 'doc-rental-001') => {
     const found = ALL_DEMO_DOCUMENTS.find((d) => d.id === id) || DEMO_RENTAL_AGREEMENT;
-    setCurrentDocument(found);
+    setCurrentDocumentState(found);
     setIsDemoActive(true);
-  };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(found));
+    } catch {
+      // ignore
+    }
+  }, []);
 
-  const uploadDocumentFile = async (
+  const uploadDocumentFile = useCallback(async (
     file: File,
     onProgress?: (stage: string, pct: number) => void
   ): Promise<LegalDocument> => {
-    // Read raw text if it's a text file or simulate text extraction from PDF/Docx
     let rawText = '';
     try {
       if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
         rawText = await file.text();
       } else {
-        // For PDF/Word binary files, generate synthetic parsed stream based on filename
         rawText = DEMO_RENTAL_AGREEMENT.rawText || '';
       }
     } catch {
@@ -101,7 +113,12 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
 
     const analyzed = await analyzeDocument(file.name, rawText, onProgress);
-    setCurrentDocument(analyzed);
+    setCurrentDocumentState(analyzed);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(analyzed));
+    } catch {
+      // ignore
+    }
 
     setDocumentsList((prev) => {
       const updated = [analyzed, ...prev.filter((d) => d.id !== analyzed.id)];
@@ -114,20 +131,27 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
 
     return analyzed;
-  };
+  }, []);
 
-  const toggleChecklistItem = (itemId: string) => {
-    const updatedChecklist = currentDocument.checklist.map((item) =>
-      item.id === itemId ? { ...item, completed: !item.completed } : item
-    );
-    const updatedDoc = {
-      ...currentDocument,
-      checklist: updatedChecklist
-    };
-    setCurrentDocument(updatedDoc);
-  };
+  const toggleChecklistItem = useCallback((itemId: string) => {
+    setCurrentDocumentState((prevDoc) => {
+      const updatedChecklist = prevDoc.checklist.map((item) =>
+        item.id === itemId ? { ...item, completed: !item.completed } : item
+      );
+      const updatedDoc = {
+        ...prevDoc,
+        checklist: updatedChecklist
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedDoc));
+      } catch {
+        // ignore
+      }
+      return updatedDoc;
+    });
+  }, []);
 
-  const addCustomChecklistItem = (
+  const addCustomChecklistItem = useCallback((
     text: string,
     category: 'Immediate' | 'Pre-Signing' | 'Ongoing' | 'Legal Consultation'
   ) => {
@@ -138,31 +162,50 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       completed: false,
       deadline: 'Pending'
     };
-    const updatedDoc = {
-      ...currentDocument,
-      checklist: [...currentDocument.checklist, newItem]
-    };
-    setCurrentDocument(updatedDoc);
-  };
+    setCurrentDocumentState((prevDoc) => {
+      const updatedDoc = {
+        ...prevDoc,
+        checklist: [...prevDoc.checklist, newItem]
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedDoc));
+      } catch {
+        // ignore
+      }
+      return updatedDoc;
+    });
+  }, []);
+
+  const contextValue = useMemo<DocumentContextType>(() => ({
+    currentDocument,
+    documentsList,
+    setCurrentDocument,
+    selectDocumentById,
+    loadDemoDocument,
+    uploadDocumentFile,
+    toggleChecklistItem,
+    addCustomChecklistItem,
+    comparisonDocA,
+    comparisonDocB,
+    setComparisonDocA,
+    setComparisonDocB,
+    isDemoActive
+  }), [
+    currentDocument,
+    documentsList,
+    setCurrentDocument,
+    selectDocumentById,
+    loadDemoDocument,
+    uploadDocumentFile,
+    toggleChecklistItem,
+    addCustomChecklistItem,
+    comparisonDocA,
+    comparisonDocB,
+    isDemoActive
+  ]);
 
   return (
-    <DocumentContext.Provider
-      value={{
-        currentDocument,
-        documentsList,
-        setCurrentDocument,
-        selectDocumentById,
-        loadDemoDocument,
-        uploadDocumentFile,
-        toggleChecklistItem,
-        addCustomChecklistItem,
-        comparisonDocA,
-        comparisonDocB,
-        setComparisonDocA,
-        setComparisonDocB,
-        isDemoActive
-      }}
-    >
+    <DocumentContext.Provider value={contextValue}>
       {children}
     </DocumentContext.Provider>
   );

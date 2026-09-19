@@ -1,9 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// In-memory cache for document comparisons to eliminate duplicate Gemini calls
+const compareCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
+const MAX_CACHE_ENTRIES = 50;
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { docAName, docAText, docBName, docBText, customApiKey } = body;
+
+    if (!docAText || !docBText || typeof docAText !== 'string' || typeof docBText !== 'string') {
+      return NextResponse.json(
+        { error: 'Both docAText and docBText are required as strings for comparison.' },
+        { status: 400 }
+      );
+    }
+
+    const sanitizedDocA = docAText.slice(0, 15000);
+    const sanitizedDocB = docBText.slice(0, 15000);
+    const safeDocAName = typeof docAName === 'string' ? docAName.slice(0, 100) : 'Draft A';
+    const safeDocBName = typeof docBName === 'string' ? docBName.slice(0, 100) : 'Draft B';
+
+    // Check cache
+    const cacheKey = `${safeDocAName}:${safeDocBName}:${sanitizedDocA.slice(0, 300)}:${sanitizedDocB.slice(0, 300)}`;
+    const cached = compareCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return NextResponse.json({
+        ...cached.data,
+        isCached: true
+      });
+    }
 
     const apiKey =
       process.env.GEMINI_API_KEY ||
@@ -51,11 +78,11 @@ CRITICAL INSTRUCTIONS:
   ]
 }
 
-DOCUMENT A (Baseline): ${docAName || 'Draft A'}
-${docAText ? docAText.slice(0, 10000) : 'No text provided for Doc A.'}
+DOCUMENT A (Baseline): ${safeDocAName}
+${sanitizedDocA || 'No text provided for Doc A.'}
 
-DOCUMENT B (Counter/Revision): ${docBName || 'Draft B'}
-${docBText ? docBText.slice(0, 10000) : 'No text provided for Doc B.'}`;
+DOCUMENT B (Counter/Revision): ${safeDocBName}
+${sanitizedDocB || 'No text provided for Doc B.'}`;
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -92,11 +119,20 @@ ${docBText ? docBText.slice(0, 10000) : 'No text provided for Doc B.'}`;
     }
 
     const parsed = JSON.parse(cleaned);
-    return NextResponse.json({
+    const resultData = {
       ...parsed,
       isLiveGeminiComparison: true,
       modelUsed: modelName
-    });
+    };
+
+    // Cache successful comparison
+    if (compareCache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = compareCache.keys().next().value;
+      if (oldestKey) compareCache.delete(oldestKey);
+    }
+    compareCache.set(cacheKey, { data: resultData, timestamp: Date.now() });
+
+    return NextResponse.json(resultData);
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || 'Failed to compare documents with Gemini' },

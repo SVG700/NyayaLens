@@ -1,9 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// In-memory cache for repeated inquiries to eliminate duplicate Gemini API calls
+const askCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL_MS = 1000 * 60 * 30; // 30 minutes
+const MAX_CACHE_ENTRIES = 100;
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { documentName, rawText, question, conversationHistory, customApiKey } = body;
+
+    // Input validation & sanitization
+    if (!question || typeof question !== 'string' || question.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Inquiry question is required and must be a non-empty string.' },
+        { status: 400 }
+      );
+    }
+
+    const sanitizedQuestion = question.trim().slice(0, 1000);
+    const sanitizedRawText = typeof rawText === 'string' ? rawText.slice(0, 20000) : '';
+
+    // Check in-memory cache for duplicate queries
+    const cacheKey = `${documentName || ''}:${sanitizedQuestion.toLowerCase()}:${sanitizedRawText.slice(0, 400)}`;
+    const cachedEntry = askCache.get(cacheKey);
+    if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_TTL_MS) {
+      return NextResponse.json({
+        ...cachedEntry.data,
+        isCached: true
+      });
+    }
 
     // Securely retrieve the key from environment variables or optional header/request fallback
     const apiKey =
@@ -56,10 +82,10 @@ RECENT DIALOGUE:
 ${formattedHistory}
 
 DOCUMENT TEXT:
-${rawText ? rawText.slice(0, 15000) : 'No raw text provided.'}
+${sanitizedRawText || 'No raw text provided.'}
 
 USER INQUIRY:
-${question}`;
+${sanitizedQuestion}`;
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -96,29 +122,39 @@ ${question}`;
       cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
     }
 
+    let resultPayload: any;
     try {
       const parsed = JSON.parse(cleaned);
-      return NextResponse.json({
+      resultPayload = {
         ...parsed,
         modelUsed: modelName,
         isLiveAI: true
-      });
+      };
     } catch {
       // Graceful fallback if JSON parsing fails
-      return NextResponse.json({
+      resultPayload = {
         answer: candidateText,
         sources: [
           {
             clauseTitle: 'Document Reference',
             section: 'General',
             page: 1,
-            snippet: rawText ? rawText.slice(0, 120) : 'Document content'
+            snippet: sanitizedRawText ? sanitizedRawText.slice(0, 120) : 'Document content'
           }
         ],
         modelUsed: modelName,
         isLiveAI: true
-      });
+      };
     }
+
+    // Cache the successful response
+    if (askCache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = askCache.keys().next().value;
+      if (oldestKey) askCache.delete(oldestKey);
+    }
+    askCache.set(cacheKey, { data: resultPayload, timestamp: Date.now() });
+
+    return NextResponse.json(resultPayload);
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || 'Failed to process AI question' },

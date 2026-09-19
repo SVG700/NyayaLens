@@ -1,9 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// In-memory cache for document analyses to eliminate redundant Gemini processing
+const analyzeCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
+const MAX_CACHE_ENTRIES = 50;
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { fileName, rawText, customApiKey } = body;
+
+    if (!rawText || typeof rawText !== 'string' || rawText.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Document rawText is required and must be a non-empty string.' },
+        { status: 400 }
+      );
+    }
+
+    const sanitizedRawText = rawText.slice(0, 25000);
+    const safeFileName = typeof fileName === 'string' ? fileName.slice(0, 100) : 'Analyzed Agreement';
+
+    // Check cache
+    const cacheKey = `${safeFileName}:${sanitizedRawText.slice(0, 500)}:${sanitizedRawText.length}`;
+    const cached = analyzeCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return NextResponse.json({
+        ...cached.data,
+        isCached: true
+      });
+    }
 
     const apiKey =
       process.env.GEMINI_API_KEY ||
@@ -34,7 +59,7 @@ CRITICAL INSTRUCTIONS:
 3. Categorize clause severity objectively: 'Informational', 'Important', 'Review Recommended', or 'Potential Concern'. Do NOT declare anything categorically legal or illegal.
 4. Output strict JSON matching this exact structure:
 {
-  "name": "${fileName || 'Analyzed Agreement'}",
+  "name": "${safeFileName}",
   "type": "Contract type (e.g. Commercial Lease, NDA, Employment, Master Services)",
   "parties": ["Party 1 Name/Role", "Party 2 Name/Role"],
   "duration": "Agreement term or duration",
@@ -117,7 +142,7 @@ CRITICAL INSTRUCTIONS:
 }
 
 DOCUMENT TEXT:
-${rawText ? rawText.slice(0, 18000) : 'No raw text provided.'}`;
+${sanitizedRawText}`;
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -154,17 +179,26 @@ ${rawText ? rawText.slice(0, 18000) : 'No raw text provided.'}`;
     }
 
     const parsed = JSON.parse(cleaned);
-    return NextResponse.json({
+    const resultDoc = {
       ...parsed,
       id: `doc-ai-${Date.now()}`,
-      fileSize: `${Math.round(rawText.length / 1024)} KB`,
+      fileSize: `${Math.round(sanitizedRawText.length / 1024)} KB`,
       uploadDate: new Date().toISOString().split('T')[0],
       lastAnalyzed: 'Just now (Live Gemini 2.5)',
       status: 'Analyzed',
       totalClauses: parsed.clauses?.length || 0,
-      rawText: rawText,
+      rawText: sanitizedRawText,
       isLiveGeminiAnalysis: true
-    });
+    };
+
+    // Cache successful analysis
+    if (analyzeCache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = analyzeCache.keys().next().value;
+      if (oldestKey) analyzeCache.delete(oldestKey);
+    }
+    analyzeCache.set(cacheKey, { data: resultDoc, timestamp: Date.now() });
+
+    return NextResponse.json(resultDoc);
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || 'Failed to analyze document with Gemini' },

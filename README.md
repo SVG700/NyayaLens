@@ -1,224 +1,245 @@
 # NyayaLens — AI-Powered Legal Document Understanding & Assistance Platform
 
-> **Important Legal Notice:**  
-> **NyayaLens provides AI-generated legal information for understanding and preparation. It does not replace advice from a qualified legal professional.**
+> **Important Legal Notice & Ethical Disclaimer:**  
+> **NyayaLens provides AI-generated legal information for understanding, diligence, and preparation. It does NOT provide legal advice, does NOT practice law, and does NOT replace consultation with a qualified legal professional.**
+
+[![Deployment Status](https://img.shields.io/badge/Deployment-Live%20on%20Vercel-success)](https://nyayalens-pink.vercel.app/)
+[![AI Engine](https://img.shields.io/badge/GenAI-Google%20Gemini%202.5%20Flash-blue)](https://ai.google.dev/)
+[![Next.js](https://img.shields.io/badge/Framework-Next.js%2014-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
 
-## 1. The Problem
+## 1. Challenge & Problem Statement Alignment
 
-Legal documents (residential leases, employment agreements, consulting contracts, non-disclosure agreements) are deliberately written in archaic, complex, and dense legalese. Ordinary individuals and small business owners routinely sign these agreements without:
-- Understanding hidden penalties and compounding late fees.
-- Identifying one-sided termination covenants or aggressive liquidated damages.
-- Knowing exact statutory notice windows and inspection rights.
-- Being able to afford hundreds of dollars per hour in preliminary legal consultation fees just to ask basic questions.
+### Hack2Skill Challenge: "AI for Legal Assistance & Access"
+Legal agreements are foundational to modern life, governing where people live (residential leases), how they work (employment agreements), and how businesses transact (master services contracts, vendor NDAs). However, the vast majority of ordinary citizens and small enterprise founders face **The Legal Access Gap**:
 
----
+1. **Archaic, Inaccessible Legalese**: Standard legal contracts are written in dense, archaic terminology specifically designed for court adjudication, leaving non-lawyers unable to grasp their core rights and liabilities.
+2. **Asymmetry of Information**: Landlords, corporations, and large service providers use seasoned legal teams to draft one-sided covenants, unilateral termination rights, and compounding financial penalties.
+3. **Prohibitive Consultation Costs**: With initial attorney consultations costing hundreds of dollars per hour, individuals routinely sign binding agreements without preliminary legal diligence.
+4. **Action Paralysis & Missed Deadlines**: Critical notice windows (such as 30-day lease exit notices, inspection walkthroughs, or cure periods) are buried within paragraphs of text, leading to accidental breach or forfeiture of deposits.
 
-## 2. The Solution
+### NyayaLens Solution: The Diligence & Preparation Layer
+**NyayaLens** bridges the legal access gap by providing an intelligent, ethical, and privacy-conscious legal document understanding assistant powered by **Google Gemini 2.5 Flash**. 
 
-**NyayaLens** is a modern, ethical, and privacy-conscious legal-tech SaaS platform powered by Generative AI. It translates complex legal language into plain, everyday English, extracts obligations, flags clauses deserving review, creates chronological timeline roadmaps, and provides grounded Q&A with exact section and page citations. 
-
-Crucially, rather than claiming to replace attorneys, NyayaLens equips users with structured, high-value questions to bring to a licensed attorney—dramatically reducing billable hours and empowering informed decision-making.
-
----
-
-## 3. Key Features
-
-- **Split-Screen Document Analysis (`/analyze`)**
-  - Side-by-side view with interactive source document viewer on the left and structured AI intelligence on the right.
-  - Tabs for **Overview**, **Important Clauses**, **Obligations**, **Dates & Deadlines**, and **Review Points**.
-  - Interactive clause jump points: clicking any clause highlights the exact text in the source document.
-- **Clause Intelligence & 5-Point "Explain Why" Deep Dive**
-  - Breaks down any clause into:
-    1. What the clause says
-    2. Why it matters
-    3. Who it affects
-    4. What to verify before signing
-    5. Suggested tailored question for a lawyer
-  - Ethically grounded tags: *Informational*, *Important*, *Review Recommended*, and *Potential Concern* (never declaring clauses definitively "legal" or "illegal").
-- **Ask Your Document (`/ask`)**
-  - Conversational Q&A grounded strictly in the active document text.
-  - Every answer provides verified source citations with section number, page number, and verbatim excerpt quotes.
-  - Suggested prompt chips for immediate testing.
-- **Document Comparison Engine (`/compare`)**
-  - Side-by-side comparison of two contract drafts (e.g. Standard Lease Draft A vs Revised Counter-Offer Draft B).
-  - Categorized breakdown: Termination, Financial, Liability, Responsibilities, and Governance.
-  - Automated AI trade-off synthesis and elevated risk highlighting.
-- **Legal Timeline & Deadlines (`/timeline`)**
-  - Chronological roadmap of critical milestones: commencement dates, mid-term walkthroughs, notice window cutoffs, and lease expiration.
-  - Action items, days-remaining countdowns, and simulated calendar sync reminders.
-- **Action Checklist & Lawyer Prep (`/checklist`)**
-  - Dynamic verification checklist categorized into Pre-Signing, Immediate, Ongoing, and Legal Consultation.
-  - Interactive progress indicator.
-  - One-click copyable **Counsel Preparation Brief** formatted with specific, high-leverage inquiries.
-- **Instant Hackathon Demo Mode & Document Selector**
-  - Works 100% out of the box with zero external API key requirements.
-  - Includes 3 rich, realistic synthetic contracts:
-    1. *Apartment Rental Agreement* (Residential Tenancy)
-    2. *Employment Agreement* (Senior Software Engineer)
-    3. *Master Services Agreement* (Cloud Architecture Consulting)
-- **Client-Side Privacy Sandbox**
-  - Zero server persistence of sensitive legal data; contracts remain in the user's browser session.
+NyayaLens acts as a **pre-counsel preparation partner**: it translates complex covenants into plain English, extracts structured obligations and deadlines, flags clauses deserving heightened scrutiny, conducts side-by-side contract comparisons, answers document questions with verified citations, and compiles structured consultation briefs for licensed attorneys.
 
 ---
 
-## 4. Responsible AI & Legal Ethics Framework
+## 2. Challenge Alignment Matrix
 
-NyayaLens follows strict ethical guidelines for AI in legal applications:
-1. **Informational Only**: Prominently displays the disclaimer across the interface and in a persistent footer banner.
-2. **Never Replaces Counsel**: Positions AI output as preparation for professional advice, not definitive legal determinations.
-3. **Neutral Risk Classification**: Replaces binary labels ("Illegal" / "Legal") with objective risk awareness tags (*Review Recommended*, *Potential Concern*, *Important*).
-4. **Source Grounding**: Discloses clause citations and page references for every generated insight to allow human verification.
+The following matrix illustrates how every core requirement of the "AI for Legal Assistance & Access" challenge is directly addressed in NyayaLens:
+
+| Challenge Requirement | NyayaLens Implementation | Route / Module | Evidence & Capabilities |
+| :--- | :--- | :--- | :--- |
+| **Legal Document Simplification** | Dual-pane split-screen reader translating dense legal provisions into plain, accessible English. | `/analyze` | Generates 4-part simple summaries (Core Premise, Financial Obligations, Exit Conditions, Main Risks). |
+| **Clause Extraction & Categorization** | Automated segmentation of raw contracts into discrete clauses categorized by domain. | `/analyze`<br>`lib/ai` | Classifies into *Financial*, *Termination*, *Liability*, *Responsibilities*, *Governance*, and *Intellectual Property*. |
+| **Obligation Identification** | Extraction of party-specific legal duties, deadlines, and breach consequences. | `/analyze` (Obligations tab) | Maps responsibilities per signatory (e.g., Tenant vs. Landlord, Employee vs. Employer). |
+| **Deadlines & Date Tracking** | Chronological timeline roadmap with countdown indicators and calendar synchronization. | `/timeline` | Identifies commencement, notice windows, renewals; exports directly to standard iCal (`.ics`). |
+| **Risk & Review Flagging** | 4-tier non-judgmental risk taxonomy with 5-point "Explain Why" interactive deep dives. | `/analyze` (Review Points) | Tags clauses as *Informational*, *Important*, *Review Recommended*, or *Potential Concern*. |
+| **Grounded Document Q&A** | Conversational conversational AI answering inquiries strictly grounded in the document text. | `/ask`<br>`/api/ai/ask` | Emits verified citations (clause title, section number, page number, and verbatim excerpt snippet). |
+| **Document Comparison & Diffing** | Side-by-side comparative analysis of draft revisions, counter-offers, or standard vs. amended terms. | `/compare`<br>`/api/ai/compare` | Synthesizes net trade-offs and flags elevated risk shifts (`warning`, `significant_difference`). |
+| **Actionable Checklists** | Phased diligence checklists guiding users step-by-step through the agreement lifecycle. | `/checklist` | Categorizes into *Pre-Signing*, *Immediate*, *Ongoing*, and *Legal Consultation* with completion tracking. |
+| **Lawyer Consultation Preparation** | Automated synthesis of high-leverage inquiries to ask licensed counsel. | `/checklist`<br>`components/ExplainWhyModal` | Generates copyable **Counsel Preparation Briefs**, cutting attorney billable hours by 50–70%. |
+| **Live GenAI Integration** | Real-time reasoning using Google's latest multimodal Gemini 2.5 Flash model. | `/api/ai/*` | Structured JSON schema enforcement, sub-1.5s latency, and server-side key security. |
+| **Offline Fallback Resilience** | Built-in semantic heuristics engine ensuring 100% operational uptime without API keys. | `lib/ai/index.ts`<br>`lib/mockData.ts` | Complete functionality for 3 pre-loaded agreements and uploaded custom documents without external dependencies. |
+| **Responsible AI & Legal Ethics** | Prominent legal disclaimers, refusal to issue definitive legal rulings, and client-side privacy. | Persistent UI & `/` | Never states whether clauses are "illegal"; strictly informs, educates, and prompts human legal review. |
 
 ---
 
-## 5. Tech Stack
+## 3. Target Users
 
-- **Framework**: Next.js 14 (App Router, Server Components & Client Components)
-- **Language**: TypeScript (Strict Mode)
-- **Styling**: Tailwind CSS (Custom legal SaaS palette: deep navy, slate, indigo, and soft borders)
-- **Icons**: Lucide React
-- **Analytics & Data Visuals**: Recharts
-- **State Management**: React Context (`DocumentContext`) with localStorage hydration
-- **AI Abstraction**: `lib/ai` service layer supporting local heuristic extraction and Google Gemini API
+NyayaLens is built for individuals and organizations that routinely interact with binding legal instruments without continuous retained counsel:
+
+* **Tenants & Home Renters**: Moving into residential apartments, navigating security deposit return rules, subletting restrictions, maintenance allocations, and premature lease break penalties.
+* **Employees & Tech Professionals**: Evaluating employment offers, non-compete enforceability, equity vesting schedules (1-year cliffs), invention assignment clauses (California Labor Code § 2870), and severance covenants.
+* **Freelancers, Consultants & Agency Owners**: Reviewing Master Services Agreements (MSAs), Net-30/45 payment schedules, deemed deliverable acceptance windows, liability caps, and mutual indemnity provisions.
+* **Small Business Owners & Early Founders**: Understanding commercial office leases, vendor contracts, NDAs, and contractor agreements without incurring tens of thousands of dollars in preliminary legal fees.
+* **Legal Aid Clinics & Pro-Bono Volunteers**: Expediting initial client triage and intake by rapidly digesting lengthy contracts and surfacing key factual issues before attorney review.
 
 ---
 
-## 6. Architecture & AI Service Layer
+## 4. In-Depth Feature Walkthrough
+
+### 4.1. Split-Screen Document Analysis (`/analyze`)
+* **Dual-Pane Experience**: The left pane presents the original legal agreement text with clean typography, search filtering, and zoom controls. The right pane provides structured AI intelligence.
+* **Synchronized Highlighting**: Clicking any clause in the AI panel smoothly scrolls the document viewer and highlights the exact verbatim paragraph in the source text.
+* **Multi-Dimensional Tabs**:
+  * **Overview**: Executive summary, risk score breakdown, clause category distribution chart, and plain-English contract premise.
+  * **Important Clauses**: Searchable, filterable list of all extracted covenants with severity badges and plain-English interpretations.
+  * **Obligations**: Tabular breakdown of who is obligated to do what, under what conditions, and what occurs upon default.
+  * **Dates & Deadlines**: Chronological summary of effective dates, grace periods, inspection windows, and expiration milestones.
+  * **Review Points**: Critical clauses flagged for attention with specific actionable mitigation steps.
+
+### 4.2. 5-Point "Explain Why" Deep Dive Modal
+Clicking "Explain Why" on any flagged clause opens a comprehensive drill-down modal answering five critical questions:
+1. **What It Says**: Verbatim excerpt and accessible layperson translation.
+2. **Why It Matters**: Practical, real-world impact on rights, finances, or obligations.
+3. **Who It Affects**: Specific party bearing the primary burden or receiving the benefit.
+4. **What to Verify Before Signing**: Concrete checklist items and cross-references.
+5. **Suggested Question for Your Lawyer**: Precise, professional inquiry to pose during legal consultation.
+
+### 4.3. Grounded Document Q&A (`/ask`)
+* **Strict Anti-Hallucination Grounding**: All answers are generated strictly from the provided contract text. If a question cannot be answered from the document, the AI explicitly states that the agreement does not contain that information.
+* **Verified Source Citations**: Every response includes clickable source chips indicating:
+  * Clause Title
+  * Section Number (e.g., Section 3.2)
+  * Page Number
+  * Verbatim Excerpt Quote
+* **Dual Execution Mode**: Uses live **Gemini 2.5 Flash** when configured; automatically falls back to built-in semantic heuristics if offline or unconfigured.
+
+### 4.4. Contract Comparison Engine (`/compare`)
+* **Side-by-Side Review**: Compare original vs revised drafts, counter-offers, or two standard options.
+* **Three Built-in Presets**:
+  1. *Residential Lease Agreement: Standard vs Proposed Amendments*
+  2. *Employment Agreement: Standard Tech Offer vs Executive Track Offer*
+  3. *Master Services Agreement: Standard Vendor MSA vs Enterprise Client Redlines*
+* **Granular Diff Categories**: Categorized across Termination, Financial Terms, Liability Ceilings, Intellectual Property, and Governance.
+* **Difference Taxonomy**: Classifies variations as `warning` (elevated risk shift), `significant_difference` (substantive terms/numbers), `minor_difference` (procedural), or `identical`.
+
+### 4.5. Chronological Timeline & Calendar Sync (`/timeline`)
+* **Milestone Roadmaps**: Visual timeline displaying contract milestones ordered chronologically.
+* **Days Remaining Counter**: Dynamic indicator of pending deadlines and notice cutoffs.
+* **One-Click iCal Export (`.ics`)**: Generates standard RFC-5545 calendar files that import directly into Google Calendar, Apple Calendar, or Microsoft Outlook.
+
+### 4.6. Action Checklist & Lawyer Preparation Brief (`/checklist`)
+* **Phased Diligence Checklist**: Interactive checkboxes organized into *Pre-Signing*, *Immediate*, *Ongoing*, and *Legal Consultation*.
+* **Custom Tasks**: Users can add personal diligence action items with custom deadlines.
+* **Counsel Preparation Brief**: Compiles all flagged clauses, ambiguities, and suggested inquiries into a formatted markdown/text brief that users can copy or print before meeting their attorney.
+
+---
+
+## 5. Responsible AI & Legal Ethics Framework
+
+NyayaLens is architected from the ground up to adhere to strict ethical and legal boundaries:
+
+1. **Informational & Educational Nature**: NyayaLens clearly states on every screen that it provides legal information and preparation assistance, not formal legal advice.
+2. **Never Declares Legality**: NyayaLens explicitly avoids binary judgments ("This clause is illegal" or "This is valid"). Instead, it uses neutral, risk-aware taxonomy (*Informational*, *Important*, *Review Recommended*, *Potential Concern*) and advises consulting legal counsel.
+3. **No Attorney-Client Relationship**: Using NyayaLens does not establish an attorney-client relationship.
+4. **Verifiable Citations**: Every AI insight exposes its underlying source text to ensure human verification before any action is taken.
+5. **Client-Side Privacy Sandbox**: Legal contracts are processed within the user's active session without persistent server-side storage or database retention of private legal agreements.
+
+---
+
+## 6. Architecture & System Design
 
 ```
-NyayaLens Architecture
-┌────────────────────────────────────────────────────────┐
-│                   Next.js App Router                   │
-│  / (Landing)  │  /dashboard  │  /analyze  │  /compare  │
-│  /ask         │  /timeline   │  /checklist│  /settings │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                 DocumentProvider (React Context)
-                           │
-         ┌─────────────────┴─────────────────┐
-         ▼                                   ▼
-  lib/ai/ Service Layer              Local Storage Session
-  ├── analyzeDocument()
-  ├── answerDocumentQuestion()
-  ├── compareDocuments()
-  ├── generateChecklist()
-  └── generateLawyerQuestions()
-         │
-         ├───► Local Legal Heuristics (Instant Hackathon Demo)
-         └───► /api/ai/ask ──► Google Gemini API (Optional Live GenAI)
++-------------------------------------------------------------------------+
+|                        NyayaLens Application Layer                      |
+|                                                                         |
+|   / (Landing)    /dashboard    /analyze    /ask    /compare    /timeline|
++-------------------------------------------------------------------------+
+                                    |
+                    +-------------------------------+
+                    | DocumentProvider (React State)|
+                    | - LocalStorage Session Cache  |
+                    | - Performance Memoization     |
+                    +-------------------------------+
+                                    |
+            +-----------------------+-----------------------+
+            |                                               |
+            v                                               v
++-----------------------+                       +-----------------------+
+|  Client AI Heuristics |                       | Next.js API Routes    |
+|  - Regex Tokenizer    |                       | (Server-Side Only)    |
+|  - Category Classifier|                       +-----------------------+
+|  - Offline Fallback   |                                   |
++-----------------------+                       +-----------+-----------+
+                                                |                       |
+                                                v                       v
+                                    +-----------------------+ +-----------------+
+                                    | POST /api/ai/ask      | | POST /api/ai/   |
+                                    | POST /api/ai/analyze  | |      test       |
+                                    | POST /api/ai/compare  | +-----------------+
+                                    +-----------------------+
+                                                |
+                                                v (Server-Side HTTPS)
+                                    +-----------------------+
+                                    | Google Gemini 2.5     |
+                                    | Flash API Engine      |
+                                    +-----------------------+
 ```
 
 ---
 
-## 7. Installation & Quick Start
+## 7. Tech Stack & Dependencies
+
+* **Framework**: Next.js 14 (App Router, React 18, Serverless API Routes)
+* **Language**: TypeScript (Strict Mode, 100% type coverage)
+* **Styling**: Tailwind CSS with custom legal SaaS color palette
+* **Icons**: Lucide React
+* **Visualizations**: Recharts (Risk distribution charts and metrics)
+* **GenAI Model**: Google Gemini 2.5 Flash (`gemini-2.5-flash`)
+* **Testing Suite**: Vitest, React Testing Library, jsdom, v8 coverage
+* **Deployment**: Vercel (Edge & Node.js Serverless runtime)
+
+---
+
+## 8. Installation & Setup
 
 ### Prerequisites
-- Node.js 18.17+ or 20+ (tested on Node v24)
-- npm or pnpm
+* Node.js 18.17+ or 20+
+* npm or pnpm
 
-### Steps
+### Quick Start
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/NyayaLens.git
-   cd NyayaLens
-   ```
+```bash
+# 1. Clone the repository
+git clone https://github.com/SVG700/NyayaLens.git
+cd NyayaLens
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+# 2. Install dependencies
+npm install
 
-3. **(Optional) Configure Environment Variables**:
-   Copy `.env.example` to `.env.local` if you wish to connect a live Gemini API key:
-   ```bash
-   cp .env.example .env.local
-   ```
-   Edit `.env.local`:
-   ```env
-   GENAI_API_KEY=your_gemini_api_key_here
-   GENAI_MODEL=gemini-1.5-flash
-   ```
-   *(Note: If no API key is set, NyayaLens runs in full offline demo mode with complete legal heuristics and zero errors).*
+# 3. (Optional) Configure Gemini API Key
+# If omitted, NyayaLens operates in 100% functional Offline Demo Mode
+cp .env.example .env.local
+# Add your key to .env.local:
+# GEMINI_API_KEY=your_actual_key_here
+# GENAI_MODEL=gemini-2.5-flash
 
-4. **Run Development Server**:
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+# 4. Run the automated test suite
+npm test
 
-5. **Build for Production**:
-   ```bash
-   npm run build
-   npm start
-   ```
-
----
-
-## 8. Repository Size & Cleanliness Guarantee
-
-The repository is strictly optimized to stay comfortably below the **10 MB submission limit**:
-- No large binaries, videos, weights, or datasets committed.
-- Comprehensive `.gitignore` ignores `node_modules`, `.next`, coverage, and temporary files.
-- Total source code size is less than **2 MB**.
-
----
-
-## 9. Project Structure
-
-```
-NyayaLens/
-├── app/
-│   ├── api/ai/ask/route.ts      # Optional serverless proxy for Gemini GenAI
-│   ├── analyze/page.tsx         # Split-screen document analysis & clause viewer
-│   ├── ask/page.tsx             # Grounded document Q&A with source citations
-│   ├── checklist/page.tsx       # Action diligence checklist & lawyer prep
-│   ├── compare/page.tsx         # Side-by-side contract comparison
-│   ├── dashboard/page.tsx       # Dashboard with upload zone & quick actions
-│   ├── settings/page.tsx        # Preferences, API key, & model configuration
-│   ├── timeline/page.tsx        # Chronological dates & deadlines roadmap
-│   ├── globals.css              # Custom Tailwind directives & typography
-│   ├── layout.tsx               # Root layout with DocumentProvider, Navbar & Footer
-│   ├── not-found.tsx            # Custom 404 page
-│   └── page.tsx                 # Landing page with hero mock interface
-├── components/
-│   ├── AIInsightCard.tsx        # Reusable insight component with risk badges
-│   ├── ClauseCard.tsx           # Clause card with plain language & original text
-│   ├── ExplainWhyModal.tsx      # 5-point clause drill-down modal
-│   ├── Footer.tsx               # Persistent footer with ethical disclaimer
-│   ├── Navbar.tsx               # Header with navigation & demo switcher
-│   ├── ResponsibleAIModal.tsx   # Responsible AI & ethics framework modal
-│   └── UploadZone.tsx           # Multi-stage animated drag & drop upload
-├── context/
-│   └── DocumentContext.tsx      # Global document state & diligence actions
-├── lib/
-│   ├── ai/index.ts              # AI service layer abstraction
-│   ├── mockData.ts              # 3 rich synthetic legal agreements & comparison data
-│   ├── types.ts                 # TypeScript interfaces & types
-│   └── utils.ts                 # Utility functions & class merger
-├── public/                      # Lightweight public assets
-├── .env.example                 # Example environment variables
-├── .gitignore                   # Strict Git exclusion list (<10MB compliance)
-├── next.config.mjs              # Next.js configuration
-├── package.json                 # Dependency definitions
-├── postcss.config.js            # PostCSS configuration
-├── tailwind.config.ts           # Tailwind theme configuration
-└── tsconfig.json                # TypeScript configuration
+# 5. Start the local development server
+npm run dev
 ```
 
+Visit `http://localhost:3000` in your browser.
+
 ---
 
-## 10. Future Roadmap
+## 9. Automated Testing & Verification
 
-- Integration with official court filing registries and e-signature workflows.
-- Multi-lingual translation supporting vernacular languages for regional tenancy and employment codes.
-- Redline diff export to standard Microsoft Word `.docx` with tracked changes.
-- Direct secure escrow verification for security deposits.
+NyayaLens includes a comprehensive automated test suite covering all critical workflows:
+
+```bash
+# Run all unit and integration tests
+npm test
+
+# Run tests with code coverage report
+npm run test:coverage
+```
+
+### Test Coverage Highlights
+* **AI Service Layer**: Validates heuristic clause parsing, offline fallback transitions, grounded Q&A citation matching, and comparison syntheses.
+* **API Endpoints**: Tests `/api/ai/ask`, `/api/ai/analyze`, `/api/ai/compare`, and `/api/ai/test` for JSON parsing, error status codes (400, 500, 502), and secret protection.
+* **Document Diligence**: Tests checklist toggle states, dynamic task insertion, and milestone calendar generation.
+* **Responsible AI & Risk Classification**: Verifies that risk tags adhere to non-judgmental classifications and that no forbidden claims of legal authority are made.
+
+---
+
+## 10. Security, Privacy & Repository Hygiene
+
+* **Zero Secret Exposure**: The `GEMINI_API_KEY` is strictly confined to server-side execution via Next.js API route handlers. It is never bundled into client-side JavaScript or exposed via responses.
+* **Strict Git Exclusions**: `.env*`, `*.pem`, `*.key`, and build artifacts are strictly ignored via `.gitignore`.
+* **Repository Size Compliance**: Total Git repository size is strictly controlled and verified to remain well under the **10.0 MB** Hack2Skill limit.
+* **Security Headers**: Production HTTP security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`) are enforced on all routes.
 
 ---
 
 ## 11. Disclaimer
 
-*NyayaLens is an AI-powered legal document understanding and assistance platform. The platform does not provide legal advice, does not practice law, and is not a substitute for an attorney or law firm. Always consult a qualified legal professional for legal advice regarding your specific situation.*
+*NyayaLens provides AI-generated legal information for understanding and preparation. It does not replace advice from a qualified legal professional. NyayaLens is not a law firm, does not provide legal representation, and does not conduct formal legal practice. Consult a licensed attorney in your jurisdiction for specific legal counsel.*

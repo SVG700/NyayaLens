@@ -304,7 +304,7 @@ export function generateLawyerQuestions(document: LegalDocument): LawyerQuestion
 /**
  * Intelligent client-side heuristic parser for uploaded custom documents
  */
-function extractFromCustomText(fileName: string, text: string): LegalDocument {
+export function extractFromCustomText(fileName: string, text: string): LegalDocument {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   const detectedTitle = lines[0] || fileName.replace(/\.[^/.]+$/, "");
 
